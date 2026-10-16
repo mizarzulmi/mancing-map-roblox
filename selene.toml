@@ -1,0 +1,6 @@
+std = "roblox"
+
+[lints]
+# Pola Luau modern (if-expression, interpolasi string) kadang ditandai berlebihan.
+shadowing = "allow"
+mixed_table = "allow"

@@ -1,0 +1,15 @@
+# Toolchain lokal (diunduh oleh scripts/setup-tools.ps1)
+.tools/
+
+# Hasil build / generate
+build/
+sourcemap.json
+roblox.yml
+*.rbxl.lock
+*.rbxlx.lock
+
+# Python cache dari skrip bantu
+__pycache__/
+
+# Pengaturan pribadi Claude Code
+.claude/settings.local.json
