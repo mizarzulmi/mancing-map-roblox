@@ -71,9 +71,10 @@ umpan, NPC, kosmetik) dan **FormulasSpec/EconomySpec/TradeSpec/BarterSpec** meng
 
 ## 5. Bekerja dengan Claude Code
 Buka folder ini di VS Code/Claude Code. `CLAUDE.md` memuat AGENTS.md otomatis. Server MCP **Roblox_Studio**
-terdaftar di cakupan user (langkah 1.5) — `.mcp.json` juga memuatnya, tetapi entri proyek butuh dialog persetujuan
-yang tidak selalu muncul di ekstensi VS Code (`claude mcp list` → "Pending approval"). Server MCP dimuat saat sesi
-dimulai: setelah mengubah konfigurasinya, buka percakapan baru. Studio harus terbuka dengan MCP aktif. Perintah:
+terdaftar di cakupan user (langkah 1.5). `.mcp.json` juga memuatnya; bila muncul permintaan persetujuan untuk
+`Roblox_Studio`, setujui (isinya sama). Server MCP dimuat saat percakapan dimulai: setelah mengubah konfigurasinya,
+buka percakapan baru (Ctrl+Shift+P → **Claude Code: Open in New Tab**) lalu ketik `/mcp` — `Roblox_Studio` harus
+**Connected**. Studio harus terbuka dengan MCP aktif. Perintah:
 
 | Perintah | Fungsi |
 |---|---|

@@ -13,10 +13,13 @@ description: >
 ## Koneksi
 - Studio: Assistant → ⋯ → Manage MCP Servers → **Enable Studio as MCP server** (Studio harus terbuka).
 - Claude Code: server `Roblox_Studio` terdaftar di **cakupan user** (`claude mcp add --scope user Roblox_Studio --
-  cmd.exe /c "%LOCALAPPDATA%\Roblox\mcp.bat"`). Entri `.mcp.json` proyek berstatus "⏸ Pending approval" bila
-  dialog persetujuan belum pernah muncul — `enabledMcpjsonServers` di `.claude/settings*.json` tidak cukup
-  (terverifikasi Claude Code 2.1.273). Cek: `claude mcp get Roblox_Studio`. Server dimuat saat sesi dimulai:
-  setelah mengubah konfigurasi, buka percakapan baru agar tool `mcp__Roblox_Studio__*` muncul.
+  cmd.exe /c "%LOCALAPPDATA%\Roblox\mcp.bat"`; `%LOCALAPPDATA%` diekspansi cmd.exe, bukan Claude Code). Entri
+  `.mcp.json` proyek "⏸ Pending approval" selama belum disetujui; `enabledMcpjsonServers` di
+  `.claude/settings.json` diabaikan selama folder belum dipercaya (dialog trust CLI). Empiris (CLI 2.1.273): entri
+  proyek yang belum disetujui tidak menutupi entri user — `claude mcp list` hanya menampilkan entri user
+  "Connected". Bila nanti disetujui, entri proyek yang isinya identik yang dipakai.
+- Server dimuat saat percakapan dimulai. VS Code: Ctrl+Shift+P → **Claude Code: Open in New Tab**, lalu `/mcp`
+  harus menampilkan `Roblox_Studio` Connected (tool `mcp__Roblox_Studio__*` muncul).
 - "Connected · tools fetch failed / Request timed out" = proxy jalan, Studio tertutup atau sakelar MCP mati.
 - Kode masuk Studio lewat Rojo (`.tools\bin\rojo.exe serve default.project.json` + Plugins → Rojo → Connect);
   bake memakai modul World yang sudah tersinkron.

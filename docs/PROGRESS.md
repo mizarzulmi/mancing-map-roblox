@@ -53,8 +53,9 @@ validasi keamanan dinyatakan bersih.
   (5,43:1) dan `TealText` #4FD1CE (6,05:1).
 - **Tafsir "joran ke-5" (GDD 4.2):** joran ke-5 yang dibeli = Legenda Nusantara; Emas Bahari dilaporkan terpisah.
 - **Koneksi MCP:** entri `.mcp.json` berstatus "⏸ Pending approval" (dialog persetujuan tidak pernah muncul karena
-  `.mcp.json` dibuat di tengah sesi; `enabledMcpjsonServers` di `.claude/settings*.json` tidak dihitung). Solusi:
-  `claude mcp add --scope user Roblox_Studio ...` — cakupan user menang atas entri proyek yang belum disetujui.
+  `.mcp.json` dibuat di tengah sesi; `enabledMcpjsonServers` di settings proyek diabaikan selama folder belum
+  dipercaya CLI). Solusi: `claude mcp add --scope user Roblox_Studio ...` — terverifikasi `claude mcp list` hanya
+  menampilkan entri user "Connected" (entri proyek yang belum disetujui tidak menutupinya).
   Sakelar MCP di Studio tidak punya kunci lokal yang bisa diatur dari luar saat mati → wajib diklik pemilik.
 - **Sinkron kode:** Rojo live (plugin + `rojo serve`) dipakai karena bisa disiapkan otomatis; Script Sync butuh
   beberapa klik menu beta. Place kerja dipisah dari `build/` agar bake & `CustomMap` tidak tertimpa build.
