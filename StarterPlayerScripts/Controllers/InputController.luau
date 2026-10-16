@@ -17,6 +17,8 @@ local InputController = {}
 
 InputController.CastBegan = Signal.new() :: Signal.Signal<>
 InputController.CastEnded = Signal.new() :: Signal.Signal<>
+-- Tahanan dibatalkan (mis. panel terbuka) — BUKAN lepas untuk melempar.
+InputController.CastCancelled = Signal.new() :: Signal.Signal<>
 InputController.Hotkey = Signal.new() :: Signal.Signal<string>
 
 local player = Players.LocalPlayer
@@ -48,6 +50,17 @@ local function blocked(): boolean
 		return true
 	end
 	return next(blockers) ~= nil
+end
+
+-- Pemblokir pintasan menu (mis. selama minigame agar tidak membuka panel tanpa sengaja).
+local hotkeyBlockers: { [string]: boolean } = {}
+
+function InputController.SetHotkeysBlocked(reason: string, isBlocked: boolean)
+	if isBlocked then
+		hotkeyBlockers[reason] = true
+	else
+		(hotkeyBlockers :: any)[reason] = nil
+	end
 end
 
 function InputController.IsFishingInputEnabled(): boolean
@@ -143,7 +156,7 @@ function InputController.Start()
 			return
 		end
 		local hotkey = HOTKEYS[input.KeyCode]
-		if hotkey then
+		if hotkey and next(hotkeyBlockers) == nil then
 			InputController.Hotkey:Fire(hotkey)
 		end
 	end)
@@ -171,12 +184,12 @@ function InputController.Start()
 		return Enum.ContextActionResult.Pass
 	end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.Space, Enum.KeyCode.ButtonR2)
 
-	-- Membuka panel saat sedang menahan: lepaskan tahanan agar status tidak menggantung.
+	-- Membuka panel saat sedang menahan: batalkan tahanan (tanpa melempar) agar status tidak menggantung.
 	UIController.PanelChanged:Connect(function(name)
 		if name ~= nil and holding then
 			holding = false
 			holdSource = nil
-			InputController.CastEnded:Fire()
+			InputController.CastCancelled:Fire()
 		end
 	end)
 end

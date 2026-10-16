@@ -84,11 +84,11 @@ local function buildBoard(board: Board): boolean
 	label(bg, board.Title, 40, Theme.Font.Display, Theme.Color.Primary, 18, 48)
 	local rows: { TextLabel } = {}
 	for i = 1, Balance.Leaderboard.Top do
-		local row = label(bg, "", 26, Theme.Font.Bold, if i <= 3 then Theme.Color.Text else Theme.Color.TextSecondary, 70 + (i - 1) * 34, 32)
+		local row = label(bg, "", 24, Theme.Font.Bold, if i <= 3 then Theme.Color.Text else Theme.Color.TextSecondary, 68 + (i - 1) * 30, 28)
 		table.insert(rows, row)
 	end
 	board.Rows = rows
-	board.Status = label(bg, "", 20, Theme.Font.Body, Theme.Color.TextSecondary, 70 + Balance.Leaderboard.Top * 34 + 6, 26)
+	board.Status = label(bg, "", 19, Theme.Font.Body, Theme.Color.TextSecondary, 68 + Balance.Leaderboard.Top * 30 + 4, 24)
 	gui.Parent = part
 	return true
 end

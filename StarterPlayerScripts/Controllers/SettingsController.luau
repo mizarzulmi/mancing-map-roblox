@@ -14,6 +14,7 @@ local Theme = require(Shared.Config.Theme)
 local DataController = require(script.Parent.DataController)
 local UIController = require(script.Parent.UIController)
 local SoundController = require(script.Parent.SoundController)
+local InputController = require(script.Parent.InputController)
 local UI = script.Parent.Parent:WaitForChild("UI")
 local Modal = require(UI:WaitForChild("Modal"))
 local Slider = require(UI:WaitForChild("Slider"))
@@ -144,6 +145,15 @@ function SettingsController.Open()
 end
 
 function SettingsController.Start()
+	InputController.Hotkey:Connect(function(name)
+		if name == "Settings" then
+			if UIController.CurrentPanel() == "Settings" then
+				UIController.ClosePanel()
+			else
+				SettingsController.Open()
+			end
+		end
+	end)
 	DataController.Observe({ "Settings" }, function(data)
 		local s = data.Settings
 		settings = { Music = s.Music, Sfx = s.Sfx, LowGfx = s.LowGfx, UiScale = s.UiScale }

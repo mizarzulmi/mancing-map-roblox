@@ -116,10 +116,10 @@ function WeatherFXController.Current(): string
 end
 
 function WeatherFXController.Start()
-	local initial = ReplicatedStorage:GetAttribute("Weather")
-	-- Map dibangun server; tunggu sebentar agar Clouds/Atmosphere sudah tereplikasi.
+	-- Map dibangun server; tunggu sebentar agar Clouds/Atmosphere tereplikasi, lalu baca cuaca terbaru.
 	task.delay(2, function()
-		apply(if type(initial) == "string" then initial else "Cerah")
+		local w = ReplicatedStorage:GetAttribute("Weather")
+		apply(if type(w) == "string" then w else "Cerah")
 	end)
 	ReplicatedStorage:GetAttributeChangedSignal("Weather"):Connect(function()
 		local w = ReplicatedStorage:GetAttribute("Weather")

@@ -22,7 +22,7 @@ local Net = {}
 -- Daftar lengkap remote (lihat docs/PLAN.md §Remote untuk payload).
 Net.Specs = {
 	-- Data
-	GetInitialData = { Kind = "Function", Direction = "ToServer", Rate = 1, Burst = 6 },
+	GetInitialData = { Kind = "Function", Direction = "ToServer", Rate = 2, Burst = 10 },
 	DataChanged = { Kind = "Event", Direction = "ToClient", Rate = 0, Burst = 0 },
 	Notify = { Kind = "Event", Direction = "ToClient", Rate = 0, Burst = 0 },
 	-- Memancing

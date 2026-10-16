@@ -285,7 +285,11 @@ local function onCastEnded()
 		if p then
 			p.Visible = false
 		end
-		sendCast()
+		if InputController.IsFishingInputEnabled() then
+			sendCast()
+		else
+			reset()
+		end
 	end
 end
 
@@ -401,10 +405,20 @@ end
 function FishingController.Start()
 	InputController.CastBegan:Connect(onCastBegan)
 	InputController.CastEnded:Connect(onCastEnded)
+	InputController.CastCancelled:Connect(function()
+		if state == "Charging" then
+			reset()
+		end
+	end)
 	Net.OnClientEvent("FishingEvent", onFishingEvent)
 	UIController.PanelChanged:Connect(function(name)
 		if name ~= nil and state == "Charging" then
 			reset()
+		elseif name ~= nil and (state == "Waiting" or state == "Bite") then
+			-- Menu terbuka saat pelampung di air: gulung tali agar umpan tidak terbuang oleh gigitan yang tak bisa di-strike.
+			Net.FireServer("CancelFishing")
+			reset()
+			NotificationController.Show("Tali digulung karena menu dibuka.", "Info")
 		end
 		setState(state)
 	end)

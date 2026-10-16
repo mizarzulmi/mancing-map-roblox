@@ -255,6 +255,12 @@ function CosmeticService.Start()
 	LevelService.LevelChanged:Connect(function(player)
 		updateNametag(player)
 	end)
+	-- Profil bisa siap setelah karakter muncul: terapkan kosmetik & nametag saat itu juga.
+	DataService.ProfileLoaded:Connect(function(player)
+		if player.Character then
+			CosmeticService.Apply(player)
+		end
+	end)
 	Players.PlayerAdded:Connect(bindPlayer)
 	for _, player in Players:GetPlayers() do
 		bindPlayer(player)

@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Types = require(Shared.Types)
@@ -264,6 +265,7 @@ local function renderColumn(frame: Frame, side: Types.TradeSide, editable: boole
 			if view == nil then
 				return
 			end
+			task.defer(render)
 			local n = math.floor(tonumber(box.Text) or 0)
 			local maxCoins = if data then data.Coins else 0
 			n = math.clamp(n, 0, maxCoins)
@@ -293,8 +295,11 @@ render = function()
 		return
 	end
 	local my, their = sides(view)
-	if columns.Mine then
-		renderColumn(columns.Mine :: Frame, my, true)
+	local mine = columns.Mine
+	local focused = UserInputService:GetFocusedTextBox()
+	-- Jangan hancurkan kotak koin yang sedang diketik; kolom sendiri dirender ulang setelah fokus lepas.
+	if mine and not (focused and focused:IsDescendantOf(mine)) then
+		renderColumn(mine, my, true)
 	end
 	if columns.Theirs then
 		renderColumn(columns.Theirs :: Frame, their, false)
@@ -367,6 +372,7 @@ local function openWindow(view: TradeView)
 	UIController.OpenPanel({
 		Name = "Trade",
 		Panel = m :: any,
+		Locked = true,
 		OnClosed = function()
 			if modal == m then
 				modal = nil

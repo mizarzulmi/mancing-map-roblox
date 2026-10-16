@@ -78,6 +78,21 @@ function EconomyService.TrySpend(player: Player, amount: number, reason: string)
 	return true
 end
 
+-- Mengembalikan koin (mis. kapal gagal berangkat). Tidak dihitung sebagai pendapatan (TotalEarned).
+function EconomyService.Refund(player: Player, amount: number, reason: string): boolean
+	local data = DataService.GetData(player)
+	local n = math.floor(amount)
+	if data == nil or n <= 0 or n ~= n then
+		return false
+	end
+	data.Coins += n
+	log(player, n, "refund:" .. reason)
+	DataService.Replicate(player, "Coins")
+	DataService.SetLeaderstat(player, "Koin", data.Coins)
+	EconomyService.CoinsChanged:Fire(player, data.Coins, n, "refund:" .. reason)
+	return true
+end
+
 function EconomyService.CanAfford(player: Player, amount: number): boolean
 	local data = DataService.GetData(player)
 	return data ~= nil and data.Coins >= math.floor(amount)

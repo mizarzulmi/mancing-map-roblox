@@ -379,7 +379,6 @@ local function doBite(player: Player, s: Session)
 	}
 	local roll = Formulas.RollFish(rng, Fish.List, ctx)
 	if roll == nil then
-		notify(player, "Info", Strings.NoFishHere)
 		FishingService.Cancel(player, Strings.NoFishHere)
 		return
 	end
@@ -523,7 +522,6 @@ local function checkSessions()
 			elseif s.State == "Waiting" and t >= s.WaitEndsAt then
 				doBite(player, s)
 			elseif s.State == "Bite" and t > s.BiteDeadline then
-				notify(player, "Info", Strings.FishEscaped)
 				escape(player, "Late")
 			elseif s.State == "Reeling" and t - s.ReelStartedAt > F.ReelTimeLimit + F.ReelTimeTolerance + 1 then
 				escape(player, "Timeout")
@@ -577,6 +575,12 @@ function FishingService.Start()
 	for _, player in Players:GetPlayers() do
 		bindPlayer(player)
 	end
+	-- Profil bisa siap setelah karakter muncul (mis. konflik sesi > 30 dtk): pasang joran saat itu juga.
+	DataService.ProfileLoaded:Connect(function(player)
+		if player.Character and #rodTools(player) == 0 then
+			FishingService.RefreshRod(player)
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		destroySession(player)
 		lastCast[player] = nil

@@ -31,6 +31,8 @@ export type PanelSpec = {
 	OnClosed: (() -> ())?,
 	-- false = tanpa scrim & tidak tertutup oleh klik luar (mis. kotak dialog NPC di bawah layar).
 	Scrim: boolean?,
+	-- true = panel lain tidak boleh menggantikannya (mis. jendela trade); ditutup hanya oleh dirinya sendiri.
+	Locked: boolean?,
 }
 
 type GuiName = "HUD" | "Minigame" | "Panel" | "Popup" | "Overlay"
@@ -40,6 +42,8 @@ local UIController = {}
 UIController.PanelChanged = Signal.new() :: Signal.Signal<string?>
 UIController.ScaleChanged = Signal.new() :: Signal.Signal<number>
 UIController.InsetChanged = Signal.new() :: Signal.Signal<number>
+-- (namaPanelYangDitolak, namaPanelTerkunci)
+UIController.PanelBlocked = Signal.new() :: Signal.Signal<string, string>
 
 local player = Players.LocalPlayer
 local guis: { [string]: ScreenGui } = {}
@@ -135,11 +139,8 @@ function UIController.FocusFirst(root: GuiObject)
 	end
 	task.spawn(function()
 		RunService.RenderStepped:Wait()
-		for _, d in root:GetDescendants() do
-			if d:IsA("GuiButton") and d.Selectable and d.Visible then
-				GuiService.SelectedObject = d
-				return
-			end
+		if root.Parent then
+			GuiService:Select(root)
 		end
 	end)
 end
@@ -231,8 +232,18 @@ function UIController.ClosePanel()
 	UIController.PanelChanged:Fire(nil)
 end
 
--- Membuka panel baru; panel lain yang sedang terbuka ditutup lebih dulu.
-function UIController.OpenPanel(spec: PanelSpec)
+-- Membuka panel baru; panel lain yang sedang terbuka ditutup lebih dulu. Bila panel aktif terkunci
+-- (mis. trade), panel baru ditolak: dihancurkan, OnClosed dipanggil, dan PanelBlocked dipancarkan.
+function UIController.OpenPanel(spec: PanelSpec): boolean
+	local active = current
+	if active and active.Locked and active.Name ~= spec.Name then
+		spec.Panel:Destroy()
+		if spec.OnClosed then
+			task.spawn(spec.OnClosed)
+		end
+		UIController.PanelBlocked:Fire(spec.Name, active.Name)
+		return false
+	end
 	if current then
 		UIController.ClosePanel()
 	end
@@ -244,6 +255,7 @@ function UIController.OpenPanel(spec: PanelSpec)
 	bindClose()
 	UIController.FocusFirst(spec.Panel.Root)
 	UIController.PanelChanged:Fire(spec.Name)
+	return true
 end
 
 function UIController.Init()

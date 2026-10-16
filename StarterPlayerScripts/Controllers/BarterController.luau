@@ -91,8 +91,13 @@ renderDetail = function(v: View)
 	v.Token += 1
 	local token = v.Token
 	task.spawn(function()
-		local preview = Net.Invoke("BarterPreview", recipe.Id)
-		if view ~= v or v.Token ~= token or typeof(preview) ~= "table" then
+		local preview, err = Net.Invoke("BarterPreview", recipe.Id)
+		if view ~= v or v.Token ~= token then
+			return
+		end
+		if typeof(preview) ~= "table" then
+			status.Text = if type(err) == "string" then err else "Gagal memeriksa tas. Coba lagi."
+			status.TextColor3 = Theme.Color.DangerText
 			return
 		end
 		local p = preview :: Types.BarterPreview

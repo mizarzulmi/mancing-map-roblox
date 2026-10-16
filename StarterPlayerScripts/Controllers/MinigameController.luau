@@ -169,6 +169,7 @@ local function finish(success: boolean)
 		conn = nil
 	end
 	SoundController.SetLoop("Reel", false)
+	InputController.SetHotkeysBlocked("minigame", false)
 	local p = panel
 	if p then
 		p.Visible = false
@@ -204,6 +205,7 @@ function MinigameController.Run(params: MinigameParams, onDone: (boolean) -> ())
 	end
 	running = true
 	finishCallback = onDone
+	InputController.SetHotkeysBlocked("minigame", true)
 	local pattern = PATTERNS[params.Pattern] or PATTERNS.Common
 	local rng = Random.new(params.Seed)
 	local width = math.clamp(params.Control, 0.12, 0.6)
@@ -234,12 +236,13 @@ function MinigameController.Run(params: MinigameParams, onDone: (boolean) -> ())
 	scale.Scale = if TweenUtil.ReducedMotion() then 1 else 0.94
 	TweenUtil.Play(scale, { Scale = 1 }, Theme.Motion.Duration)
 
-	conn = RunService.RenderStepped:Connect(function(dt)
+	conn = RunService.RenderStepped:Connect(function(dt: number)
 		if not running then
 			return
 		end
+		-- dt nyata untuk waktu & progres (selaras jam server); dt dibatasi hanya untuk integrasi gerak.
 		local step = math.min(dt, 1 / 20)
-		elapsed += step
+		elapsed += dt
 
 		-- Zona tangkap dengan inersia.
 		local accel = if InputController.IsHolding() then ZONE_ACCEL else -ZONE_GRAVITY
@@ -281,9 +284,9 @@ function MinigameController.Run(params: MinigameParams, onDone: (boolean) -> ())
 		-- Progres.
 		local inside = fishPos >= zonePos and fishPos <= zonePos + width
 		if inside then
-			progress += params.Gain * params.ReelSpeed * step
+			progress += params.Gain * params.ReelSpeed * dt
 		else
-			progress -= params.Loss * step
+			progress -= params.Loss * dt
 		end
 		progress = math.clamp(progress, 0, 1)
 		if inside ~= wasInside then

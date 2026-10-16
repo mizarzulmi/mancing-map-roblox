@@ -437,10 +437,9 @@ renderDetail = function(v: View, entry: Entry?)
 	Style.List(stats, "Vertical", Theme.Space.XS)
 	entry.Stats(stats)
 	if entry.Quantity then
-		v.Qty = 1
 		QuantityPicker.new({
 			Options = { 1, 10, 50, 0 },
-			Selected = 1,
+			Selected = v.Qty,
 			MaxLabel = Strings.Max,
 			LayoutOrder = 5,
 			Parent = detail,
@@ -497,6 +496,9 @@ local function renderGrid(v: View)
 			LayoutOrder = i,
 			Parent = v.Grid,
 			OnActivated = function()
+				if v.Selected ~= entry.Id then
+					v.Qty = 1
+				end
 				v.Selected = entry.Id
 				for _, other in v.Cards do
 					other:SetSelected(false)

@@ -69,6 +69,11 @@ end
 
 function NotificationController.Start()
 	UIController.InsetChanged:Connect(position)
+	UIController.PanelBlocked:Connect(function(_name, lockedBy)
+		if lockedBy == "Trade" then
+			NotificationController.Show("Selesaikan atau batalkan pertukaran dulu.", "Warning")
+		end
+	end)
 	Net.OnClientEvent("Notify", function(kind: unknown, text: unknown)
 		if type(text) == "string" then
 			NotificationController.Show(text, if type(kind) == "string" then kind :: any else "Info")

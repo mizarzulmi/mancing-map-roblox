@@ -132,6 +132,7 @@ end
 function DataController.Start()
 	Net.OnClientEvent("DataChanged", applyDelta)
 	task.spawn(function()
+		local delay = 1
 		while data == nil do
 			local snapshot = Net.Invoke("GetInitialData")
 			if typeof(snapshot) == "table" and typeof((snapshot :: any).Data) == "table" then
@@ -149,7 +150,8 @@ function DataController.Start()
 					DataController.Changed:Fire(key)
 				end
 			else
-				task.wait(0.5)
+				task.wait(delay)
+				delay = math.min(delay * 1.5, 3)
 			end
 		end
 	end)

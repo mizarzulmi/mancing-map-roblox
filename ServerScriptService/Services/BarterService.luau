@@ -89,7 +89,7 @@ local function execute(player: Player, recipe: BarterRecipe): (boolean, string)
 			InventoryService.AddFish(player, item)
 		end
 		if preview.Coins > 0 then
-			EconomyService.Add(player, preview.Coins, "trade:barter-refund")
+			EconomyService.Refund(player, preview.Coins, "barter:" .. recipe.Id)
 		end
 		return false, "Barter gagal, coba lagi."
 	end

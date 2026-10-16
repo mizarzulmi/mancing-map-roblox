@@ -59,16 +59,28 @@ local function travel(player: Player, destinationRaw: unknown): (boolean, string
 	FishingService.Cancel(player, Strings.FerryDeparting)
 	Net.FireClient("FerryEvent", player, "Depart", { Destination = destination })
 	local target = arrival :: CFrame
+	local paid = if destination == "DeepSea" then Balance.Ferry.Price else 0
 	task.delay(Balance.Ferry.FadeSeconds + Balance.Ferry.TravelSeconds * 0.5, function()
 		local character = player.Character
-		if player.Parent == Players and character then
-			character:PivotTo(target + Vector3.new(0, 3.5, 0))
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		local moved = false
+		if player.Parent == Players and character and humanoid and humanoid.Health > 0 then
+			character:PivotTo(target + Vector3.new(0, 0.5, 0))
+			moved = true
 		end
 		task.wait(Balance.Ferry.TravelSeconds * 0.5)
 		traveling[player] = nil
-		if player.Parent == Players then
-			Net.FireClient("FerryEvent", player, "Arrive", { Destination = destination })
+		if player.Parent ~= Players then
+			return
+		end
+		Net.FireClient("FerryEvent", player, "Arrive", { Destination = destination })
+		if moved then
 			FerryService.Traveled:Fire(player, destination)
+		else
+			if paid > 0 then
+				EconomyService.Refund(player, paid, "ferry")
+			end
+			Net.FireClient("Notify", player, "Warning", "Kapal batal berangkat. Koin dikembalikan.")
 		end
 	end)
 	return true, if destination == "DeepSea" then Strings.FerryArrivedDeep else Strings.FerryArrivedShore

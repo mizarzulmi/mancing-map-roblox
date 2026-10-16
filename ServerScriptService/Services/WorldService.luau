@@ -202,9 +202,16 @@ end
 local function loadWaitingCharacters()
 	Players.CharacterAutoLoads = true
 	for _, player in Players:GetPlayers() do
-		if player.Character == nil then
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if character == nil or humanoid == nil or humanoid.Health <= 0 then
 			task.spawn(function()
-				player:LoadCharacter()
+				local ok, err = pcall(function()
+					player:LoadCharacterAsync()
+				end)
+				if not ok then
+					warn("[WorldService] gagal memuat karakter " .. player.Name .. ": " .. tostring(err))
+				end
 			end)
 		end
 	end

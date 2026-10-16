@@ -466,7 +466,8 @@ end
 
 function TradeService.Start()
 	Net.OnServerInvoke("TradeInvite", function(player: Player, targetUserId: unknown): any
-		local uid = Guard.Int(targetUserId, 1, 2 ^ 53)
+		-- UserId bisa negatif untuk pemain uji di Studio (Clients and Servers); GetPlayerByUserId memvalidasi.
+		local uid = Guard.Int(targetUserId, -(2 ^ 53), 2 ^ 53)
 		local target = if uid then Players:GetPlayerByUserId(uid) else nil
 		if target == nil then
 			Guard.Reject(player, "TradeInvite", "target tidak valid")
