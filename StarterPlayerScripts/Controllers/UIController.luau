@@ -264,18 +264,26 @@ function UIController.Init()
 	pcall(function()
 		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	end)
-	-- Jendela chat bawaan ada di kiri atas dan tertimpa panel Level + menu kiri (GDD 6). Tanpa layar sentuh,
-	-- pindahkan ke kanan bawah (kosong di PC: tombol Lempar hanya untuk layar sentuh). Layar sentuh: chat tertutup
-	-- secara bawaan, posisi standar dibiarkan.
-	if not UserInputService.TouchEnabled then
-		task.spawn(function()
-			local chatWindow = TextChatService:WaitForChild("ChatWindowConfiguration", 10)
-			if chatWindow and chatWindow:IsA("ChatWindowConfiguration") then
-				chatWindow.HorizontalAlignment = Enum.HorizontalAlignment.Right
-				chatWindow.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	-- Jendela chat bawaan ada di kiri atas dan tertimpa panel Level + menu kiri (GDD 6). Selama input utama bukan
+	-- sentuh, pindahkan ke kanan bawah (kosong: tombol Lempar hanya tampil saat input sentuh); input sentuh → posisi
+	-- standar. Memakai PreferredInput, bukan TouchEnabled: laptop layar sentuh yang dipakai dengan mouse tetap pindah.
+	task.spawn(function()
+		local found = TextChatService:WaitForChild("ChatWindowConfiguration", 10)
+		if found == nil or not found:IsA("ChatWindowConfiguration") then
+			return
+		end
+		local chatWindow = found :: ChatWindowConfiguration
+		local function place()
+			local touch = UserInputService.PreferredInput == Enum.PreferredInput.Touch
+			chatWindow.HorizontalAlignment = if touch then Enum.HorizontalAlignment.Left else Enum.HorizontalAlignment.Right
+			chatWindow.VerticalAlignment = if touch then Enum.VerticalAlignment.Top else Enum.VerticalAlignment.Bottom
+			if RunService:IsStudio() then
+				print(string.format("[UIController] chat %s (input %s)", if touch then "kiri atas" else "kanan bawah", UserInputService.PreferredInput.Name))
 			end
-		end)
-	end
+		end
+		place()
+		UserInputService:GetPropertyChangedSignal("PreferredInput"):Connect(place)
+	end)
 	for _, name in { "HUD", "Minigame", "Panel", "Popup", "Overlay" } do
 		makeGui(name :: GuiName)
 	end

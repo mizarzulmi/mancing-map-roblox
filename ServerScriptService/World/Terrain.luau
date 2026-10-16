@@ -437,34 +437,56 @@ local function buildLegacy(
 	return materials, occupancy
 end
 
--- Bangun seluruh terrain. Boleh yield (task.wait) — dipanggil dari task/command bar.
-function Terrain.Build(terrain: Terrain): number
-	terrain:Clear()
-	applyAppearance(terrain)
+-- Titik darat untuk verifikasi baca-ulang (titik dengan tinggi rancangan ≤ 1,5 dilewati).
+local CHECK_POINTS: { Vector2 } = {
+	Vector2.new(0, 0),
+	Vector2.new(0, 48),
+	Vector2.new(-32, -16),
+	Vector2.new(60, 40),
+	Vector2.new(-60, 60),
+	Vector2.new(220, 180),
+}
 
-	-- 1) Dasar pasir di bawah −60 lalu laut besar ±1200 (FillBlock per ubin).
-	local half, tile, floor = T.SeaHalf, T.FillTile, T.SeaFloor
-	local cx = -half + tile / 2
-	while cx < half do
-		local cz = -half + tile / 2
-		while cz < half do
-			terrain:FillBlock(
-				CFrame.new(cx, floor - T.BaseThickness / 2, cz),
-				Vector3.new(tile, T.BaseThickness, tile),
-				M.Sand
-			)
-			terrain:FillBlock(CFrame.new(cx, floor / 2, cz), Vector3.new(tile, -floor, tile), M.Water)
-			cz += tile
+-- Baca ulang kolom voxel di titik darat: padatan di atas y=0 harus ≈ tinggi rancangan dan tidak ada air di atas
+-- permukaan laut. Mengembalikan (titik bermasalah, ringkasan per titik).
+local function verify(terrain: Terrain): ({ string }, { string })
+	local problems: { string } = {}
+	local report: { string } = {}
+	for _, p in CHECK_POINTS do
+		local h = Terrain.HeightAt(p.X, p.Y)
+		if h > 1.5 then
+			local x0 = math.floor(p.X / RES) * RES
+			local z0 = math.floor(p.Y / RES) * RES
+			local top = (math.ceil(h / RES) + 2) * RES
+			local region = Region3.new(Vector3.new(x0, 0, z0), Vector3.new(x0 + RES, top, z0 + RES))
+			local ok, data = pcall(function(): ...any
+				return terrain:ReadVoxelChannels(region, RES, { "SolidOccupancy", "LiquidOccupancy" })
+			end)
+			if ok and type(data) == "table" then
+				local d = data :: any
+				local solid, liquid = 0, 0
+				for iy = 1, (d.Size :: Vector3).Y do
+					solid += d.SolidOccupancy[1][iy][1] * RES
+					liquid += d.LiquidOccupancy[1][iy][1] * RES
+				end
+				local label = string.format("(%d,%d)", p.X, p.Y)
+				table.insert(report, string.format("%s rancangan %.1f padat %.1f air %.1f", label, h, solid, liquid))
+				if math.abs(solid - h) > 2 or liquid > 1 then
+					table.insert(problems, label)
+				end
+			end
 		end
-		task.wait()
-		cx += tile
 	end
+	return problems, report
+end
 
-	-- 2) Pulau, lereng, laguna per chunk.
+-- Tulis pulau/lereng/laguna per chunk. Mengembalikan (jumlah chunk ditulis, memakai WriteVoxels).
+local function writeIsland(terrain: Terrain, forceLegacy: boolean): (number, boolean)
+	local floor = T.SeaFloor
 	local rmin, rmax = T.RegionMin, T.RegionMax
 	local cs, chY = T.ChunkXZ, T.ChunkY
 	local nx, ny, nz = cs // RES, chY // RES, cs // RES
-	local useLegacy = false
+	local useLegacy = forceLegacy
 	local written = 0
 	local x0 = rmin.X
 	while x0 + cs <= rmax.X do
@@ -521,6 +543,46 @@ function Terrain.Build(terrain: Terrain): number
 			z0 += cs
 		end
 		x0 += cs
+	end
+	return written, useLegacy
+end
+
+-- Bangun seluruh terrain. Boleh yield (task.wait) — dipanggil dari task/command bar.
+function Terrain.Build(terrain: Terrain): number
+	terrain:Clear()
+	applyAppearance(terrain)
+
+	-- 1) Dasar pasir di bawah −60 lalu laut besar ±1200 (FillBlock per ubin).
+	local half, tile, floor = T.SeaHalf, T.FillTile, T.SeaFloor
+	local cx = -half + tile / 2
+	while cx < half do
+		local cz = -half + tile / 2
+		while cz < half do
+			terrain:FillBlock(
+				CFrame.new(cx, floor - T.BaseThickness / 2, cz),
+				Vector3.new(tile, T.BaseThickness, tile),
+				M.Sand
+			)
+			terrain:FillBlock(CFrame.new(cx, floor / 2, cz), Vector3.new(tile, -floor, tile), M.Water)
+			cz += tile
+		end
+		task.wait()
+		cx += tile
+	end
+
+	-- 2) Pulau, lereng, laguna per chunk, lalu verifikasi baca-ulang. Pemilik melihat daratan tergenang setelah bake
+	-- dari Command Bar (2026-10-16, penyebab belum dipastikan): bila hasil WriteVoxelChannels tidak sesuai
+	-- rancangan, pulau ditulis ulang dengan WriteVoxels.
+	local written, usedLegacy = writeIsland(terrain, false)
+	local problems, report = verify(terrain)
+	if #problems > 0 and not usedLegacy then
+		warn("[Terrain] daratan tidak sesuai rancangan di " .. table.concat(problems, ", ") .. "; tulis ulang dengan WriteVoxels")
+		written = writeIsland(terrain, true)
+		problems, report = verify(terrain)
+	end
+	print("[Terrain] cek darat: " .. table.concat(report, " · "))
+	if #problems > 0 then
+		warn("[Terrain] daratan masih tidak sesuai rancangan di " .. table.concat(problems, ", "))
 	end
 
 	-- 3) Bentuk organik: batu besar & rumpun semak (tanpa part).

@@ -311,6 +311,17 @@ elseif mode == "balance" then
 	local Sim = requireModule(tests.BalanceSim)
 	Sim.PrintReport(Sim.RunDefault(hours), print)
 	process.exit(0)
+elseif mode == "tinggi" then
+	-- Tinggi rancangan terrain di pasangan (x z): lune run scripts/lune/run.luau tinggi 0 0 60 40
+	local Terrain = requireModule(sss.World.Terrain)
+	local i = 2
+	while process.args[i + 1] ~= nil do
+		local x, z = tonumber(process.args[i]) or 0, tonumber(process.args[i + 1]) or 0
+		local h, m = Terrain.HeightAt(x, z)
+		print(string.format("(%g, %g) tinggi %.2f %s", x, z, h, tostring(m)))
+		i += 2
+	end
+	process.exit(0)
 else
 	print("Mode tidak dikenal: " .. tostring(mode))
 	process.exit(2)

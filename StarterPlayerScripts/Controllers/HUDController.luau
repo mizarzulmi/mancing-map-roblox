@@ -359,7 +359,7 @@ local function buildCastButton()
 	castLabel = label
 end
 
--- Tombol Lempar/Tarik hanya untuk perangkat sentuh & saat joran dipegang.
+-- Tombol Lempar/Tarik hanya saat input sentuh dipakai & joran dipegang (pojok kanan bawah dipakai chat selain itu).
 function HUDController.SetCastLabel(text: string)
 	local l = castLabel
 	if l then
@@ -370,7 +370,9 @@ end
 local function refreshCastVisibility()
 	local b = castButton
 	if b then
-		b.Visible = UserInputService.TouchEnabled and InputController.IsRodEquipped() and not UIController.IsPanelOpen()
+		b.Visible = UserInputService.PreferredInput == Enum.PreferredInput.Touch
+			and InputController.IsRodEquipped()
+			and not UIController.IsPanelOpen()
 	end
 end
 
@@ -612,6 +614,7 @@ function HUDController.Start()
 		closeBaitPicker()
 		refreshCastVisibility()
 	end)
+	Style.OnInputChanged(refreshCastVisibility)
 	Net.OnClientEvent("LevelUp", function(level: unknown, coins: unknown)
 		if type(level) == "number" and type(coins) == "number" then
 			celebrateLevel(level, coins)
