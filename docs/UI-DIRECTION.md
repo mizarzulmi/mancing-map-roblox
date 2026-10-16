@@ -25,8 +25,9 @@ karang; setiap bentuk punya lengkung (silinder/bola/terrain), sedikit miring bua
 setiap tangkapan adalah "kartu timbang" lapak ikan — berat dulu, lalu harga. Mereka kembali ke plaza karena tanda
 "!" Pak Lurah dan papan peringkat.
 
-**FIRST VIEWPORT.** Spawn menghadap laut: dermaga di kanan memanjang ke horizon, kelapa melengkung membingkai plaza
-di kiri, mercusuar belang di tanjung kanan jauh, pinisi berlabuh di tengah laut. HUD tipis di tepi: kiri atas level +
+**FIRST VIEWPORT.** Spawn menghadap laut (+Z): gerbang plaza membingkai laut dan pinisi yang berlabuh di tengah;
+dermaga memanjang ke horizon dan mercusuar belang di tanjung tampak di kiri (sesuai koordinat GDD, timur = kiri
+saat menghadap laut); kelapa melengkung membingkai kedua sisi plaza. HUD tipis di tepi: kiri atas level +
 bar XP, kanan atas koin (angka terbesar di layar), bawah tengah slot joran + umpan, kanan bawah tombol Lempar (HP).
 
 **FORM.** Kartu timbang lapak ikan sebagai bahasa komponen (label harga bertali, angka timbangan) di atas sistem panel

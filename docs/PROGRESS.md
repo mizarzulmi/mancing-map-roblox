@@ -11,7 +11,7 @@
 | Fase | Isi | Kode | Bukti |
 |---|---|---|---|
 | 0 Fondasi | struktur, AGENTS/CLAUDE/PRODUCT/docs, `.claude/` (skill, perintah, sub-agen, hook), toolchain & skrip, Util, Types, Net, Formulas, ProfileSchema, TradeLogic, Config, bootstrap | ✅ | statis ✅ · Lune 178/178 ✅ · Script Sync: disiapkan (TESTING §B) |
-| 1 Map | Terrain, plaza & kios, dermaga T, gubuk barter, jetty kapal, platform Laut Dalam, mercusuar, pinisi, jukung, kelapa, bakau, properti, bawah laut, zona, titik NPC, batas, Lighting | ✅ (sub-agen) | statis — lihat §Verifikasi; bake & 6 screenshot: belum (butuh MCP) |
+| 1 Map | Terrain, plaza & kios, dermaga T, gubuk barter, jetty kapal, platform Laut Dalam, mercusuar, pinisi, jukung, kelapa, bakau, properti, bawah laut, zona, titik NPC, batas, Lighting | ✅ | statis ✅ · dijalankan penuh di Lune (4.219 part) ✅ · bake & 6 screenshot Studio: belum (butuh MCP) |
 | 2 Data & ekonomi | DataService (ProfileStore + mock), Economy, Inventory, leaderstats, DataController, UIController, HUD, toast | ✅ | statis ✅ |
 | 3 Memancing | FishingService, RodModel/BobberModel/FishModel, Input/Fishing/Minigame/CatchPopup | ✅ | statis ✅ |
 | 4 NPC & toko | NPCService, Dialog, Shop (joran/umpan/tas/kosmetik/poin), Sell, Cosmetic + equip | ✅ | statis ✅ |
@@ -19,6 +19,22 @@
 | 6 Dunia hidup | siang–malam, cuaca + FX, event, kapal, ambient, suara (bawaan), papan peringkat | ✅ | statis ✅ |
 | 7 Barter & trade | BarterService/Controller, TradeService/Controller, log, peringatan timpang | ✅ | statis ✅ · uji 2 pemain: disiapkan (TESTING §F) |
 | 8 Polish | mobile/gamepad, pengaturan + grafis rendah, BalanceSim, SelfTest, README | ✅ | statis ✅ · BalanceSim ✅ · perangkat: disiapkan (TESTING §G) |
+
+## Map (Fase 1) — jumlah part terukur (Lune)
+Plaza 497 · Pier 787 · Palms 1.280 (40 kelapa × 32 part: batang 8 segmen, 7 pelepah × 3, 3 kelapa) · Mangroves 351 ·
+Boats 247 · Pinisi 114 · Lighthouse 60 · BeachProps 338 · Underwater 461 · Zones 83 → **4.219** (batas 6.000).
+Profil terrain sesuai GDD: plaza 5,5; pasir Z20 ≈ 5,5 → garis pantai ±Z117; −12 di Z200; −40 di Z320; laguna −6;
+kanal −3; tanjung mercusuar ≈ 15,7. Papan peringkat dipindah ke (±22, 6, 5) agar tidak menutup laut dari spawn.
+Dari spawn (menghadap +Z) dermaga & mercusuar tampak di kiri (koordinat GDD).
+
+**Cek visual saat MCP aktif (`/review-map`):** hasil nyata WriteVoxelChannels (dasar laut, tepi laguna & kanal);
+keterbacaan SurfaceGui siang/malam; LeafyGrass pada elipsoid kanopi bakau; bagian bawah kubah mercusuar vs kaca;
+Lighting.Technology = Future; bukit rumput utara masih lapang (kandidat penambahan vegetasi).
+
+## Review kode (independen)
+Reviewer membaca 19 service, 23 controller, dan modul Shared: 0 Kritis, 1 Tinggi, 4 Sedang, 10 Rendah — **semua
+diperbaiki** (commit `fix: perbaikan 15 temuan review kode`). Kontrak remote server↔client, urutan Init/Start, dan
+validasi keamanan dinyatakan bersih.
 
 ## Keputusan & temuan teknis
 - **API deprecated di spek diganti:** `Players:CreateHumanoidModelFromDescription` → `...Async`;
@@ -62,6 +78,10 @@ Alternatif yang ditolak: Laguna Lv 6 (17 mnt, masih terlalu cepat); Karbon Lv 9 
 - **Mesh Creator Store** — hanya dengan izin pemilik (`/model-cantik`).
 
 ## Verifikasi
-- `scripts/check.ps1`: lihat hasil terbaru di laporan sesi.
+- `scripts/check.ps1`: `[CHECK] luau-lsp: 0 masalah` (seluruh proyek, strict, definisi Roblox 1.70.1).
+- `scripts/build.ps1`: `build/PantaiMancing.rbxl` valid (diperiksa Lune: 2 Script, 1 LocalScript, 111 ModuleScript,
+  tanpa script ber-anak, Lighting.Technology = Future).
+- Sub-agen: pustaka UI diuji asap di Lune 30/30 (normal & ReducedMotion); semua builder model & map dieksekusi di Lune
+  dengan Config asli tanpa error.
 - `scripts/test.ps1`: `[SELFTEST] LULUS 178/178` (WeightedRandom 100.000 sampel ±1,5%, rumus, ekonomi, trade, barter, Config).
 - `scripts/test.ps1 -Balance`: tabel di atas.
