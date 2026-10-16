@@ -207,6 +207,8 @@ local function buildMenu()
 	local list = Instance.new("UIListLayout")
 	list.SortOrder = Enum.SortOrder.LayoutOrder
 	list.Padding = UDim.new(0, Theme.Space.S)
+	-- Lebar tombol mengikuti labelnya; rata tengah agar semua ubin berada di satu garis.
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	list.Parent = left
 	menuList = list
 	for i, item in MENU do
@@ -483,13 +485,26 @@ local function refreshClock()
 	end
 end
 
--- Tata letak responsif: menu kiri kolom di layar tinggi, baris di bawah panel level di layar pendek.
+-- Tinggi kolom menu dari ukuran tombol sebenarnya (tidak bergantung arah daftar saat ini).
+local function menuColumnHeight(): number
+	local total = 0
+	for _, btn in menuButtons do
+		total += btn.Instance.Size.Y.Offset
+	end
+	return total + math.max(#menuButtons - 1, 0) * Theme.Space.S
+end
+
+-- Tata letak responsif: menu kiri berupa kolom yang dipusatkan vertikal tetapi tidak pernah naik melewati panel
+-- level; bila kolom tidak muat sampai tepi bawah, menu menjadi baris di bawah panel level.
 local function layout()
 	local inset = UIController.TopInset()
 	local top = inset + Theme.Space.M
+	local belowLevel = top + 92
 	local root = UIController.Gui("HUD")
 	local height = root.AbsoluteSize.Y / math.max(UIController.Scale(), 0.01)
-	local compact = height < 620
+	local column = menuColumnHeight()
+	local columnTop = math.max(height / 2 - column / 2, belowLevel)
+	local compact = columnTop + column + Theme.Space.L > height
 	containers.TopLeft.Position = UDim2.fromOffset(Theme.Space.L, top)
 	containers.TopRight.Position = UDim2.new(1, -Theme.Space.L, 0, top)
 	containers.TopCenter.Position = UDim2.new(0.5, 0, 0, top)
@@ -498,13 +513,8 @@ local function layout()
 	if list then
 		list.FillDirection = if compact then Enum.FillDirection.Horizontal else Enum.FillDirection.Vertical
 	end
-	if compact then
-		containers.Left.AnchorPoint = Vector2.new(0, 0)
-		containers.Left.Position = UDim2.fromOffset(Theme.Space.L, top + 92)
-	else
-		containers.Left.AnchorPoint = Vector2.new(0, 0.5)
-		containers.Left.Position = UDim2.new(0, Theme.Space.L, 0.5, 20)
-	end
+	containers.Left.AnchorPoint = Vector2.new(0, 0)
+	containers.Left.Position = UDim2.fromOffset(Theme.Space.L, if compact then belowLevel else columnTop)
 end
 
 local function celebrateLevel(level: number, coins: number)

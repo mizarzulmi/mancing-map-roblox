@@ -58,6 +58,12 @@ bash scripts/api.sh <Kelas> [regex]                               # cek API Robl
 7. `require` dinamis memicu "Unknown require" → `local dynamicRequire = require :: any`.
 8. Fungsi kosong & placeholder dilarang: Init/Start opsional — hapus bila tidak ada pekerjaan.
 
+## UI Roblox — jebakan terverifikasi di Studio
+- `AutomaticSize` hanya membesar. Bingkai ber-`Size` skala 1 di dalam induk yang juga `AutomaticSize` melebar
+  memenuhi layar (2026-10-16: panel Level HUD menutupi seluruh viewport). `Style.Frame/Card/Panel` tanpa `Size`
+  kini mulai dari 0 pada sumbu AutoSize; bila menulis `Instance.new` sendiri, sumbu otomatis wajib offset 0.
+- Kolom menu HUD: tombol berbeda lebar (mengikuti label) → `UIListLayout.HorizontalAlignment = Center`.
+
 ## Konvensi data
 - String kosong `""` = slot kosong (EquippedBait, kosmetik). Koin hanya lewat `EconomyService.Add/TrySpend`.
 - Client menerima snapshot `GetInitialData` lalu `DataChanged` (`Set`/`FishAdd`/`FishRemove`/`FishUpdate`).

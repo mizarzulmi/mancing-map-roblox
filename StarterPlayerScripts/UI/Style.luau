@@ -254,6 +254,20 @@ function Style.Label(props: LabelProps): TextLabel
 	return label
 end
 
+-- Ukuran bawaan bila Size nil: sumbu AutoSize mulai dari 0 agar bingkai memeluk isinya. Skala 1 pada sumbu
+-- otomatis membuat bingkai mengisi seluruh induk (AutomaticSize hanya membesar) — di dalam kontainer HUD yang
+-- juga AutomaticSize, panel melebar menutupi layar.
+local function defaultFrameSize(auto: AutoSize?): UDim2
+	if auto == "XY" then
+		return UDim2.fromOffset(0, 0)
+	elseif auto == "X" then
+		return UDim2.fromScale(0, 1)
+	elseif auto == "Y" then
+		return UDim2.fromScale(1, 0)
+	end
+	return UDim2.fromScale(1, 1)
+end
+
 -- Frame dasar; transparan bila Color nil.
 function Style.Frame(props: FrameProps): Frame
 	local frame = Instance.new("Frame")
@@ -265,7 +279,7 @@ function Style.Frame(props: FrameProps): Frame
 	else
 		frame.BackgroundTransparency = 1
 	end
-	frame.Size = props.Size or UDim2.fromScale(1, 1)
+	frame.Size = props.Size or defaultFrameSize(props.AutoSize)
 	if props.Position then
 		frame.Position = props.Position
 	end
