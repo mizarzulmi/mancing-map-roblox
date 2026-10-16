@@ -115,8 +115,9 @@ Semua service: `Init()` (tanpa yield) dan `Start()`.
   Signal: `Sold(player, coins, count, npcId)`.
 - **BarterService** — Remote `BarterPreview(recipeId) -> BarterPreview`, `BarterExecute(recipeId) -> (ok, msg)`.
   Signal: `Bartered(player, recipeId)`.
-- **FishdexService** — mendengar `FishCaught`. Remote `ClaimFishdex(zoneId)`. `ZoneComplete(player, zoneId)`,
-  `DiscoveredCount(player)`. Signal: `Discovered(player, speciesId)`, `ZoneCompleted(player, zoneId)`.
+- **FishdexService** — mendengar `FishCaught` → `Record(player, species, weight)` (juga dipakai `/semua`). Remote
+  `ClaimFishdex(zoneId)`. `ZoneComplete(player, zoneId)`, `DiscoveredCount(player)`. Signal: `Discovered(player,
+  speciesId)`, `ZoneCompleted(player, zoneId)`.
 - **FerryService** — Remote `FerryTravel(destination)` (`DeepSea` dari Nahkoda Jaka, `Shore` dari Awak Kapal).
   Remote keluar `FerryEvent(kind, data)`. Signal: `Traveled(player, destination)`.
 - **CosmeticService** — Remote `Equip(slot, itemId)` untuk Rod/Bait/7 slot kosmetik (string kosong = lepas);
@@ -131,7 +132,7 @@ Semua service: `Init()` (tanpa yield) dan `Start()`.
 - **LeaderboardService** — OrderedDataStore `Heaviest`/`TotalCoins`, refresh 5 menit, SurfaceGui di papan plaza;
   nonaktif + tulisan "Papan peringkat aktif setelah dipublish" di mode mock.
 - **DebugService** — hanya `RunService:IsStudio()`: TextChatCommand `/koin n`, `/level n`, `/cuaca id`, `/event id`,
-  `/waktu jam`, `/isitas`.
+  `/waktu jam`, `/isitas`, `/semua [paksa]` (buka semua untuk uji; di luar mode uji wajib `paksa`).
 
 ## 4. Remote (semua didefinisikan di `Shared/Net.luau`)
 

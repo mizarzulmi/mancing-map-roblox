@@ -55,7 +55,9 @@ function FishdexService.ZoneComplete(player: Player, zoneId: string): boolean
 	return true
 end
 
-local function onCaught(player: Player, item: Types.FishItem, species: Types.FishSpecies)
+-- Mencatat satu ikan ke Fishdex. Spesies baru memicu Discovered (quest/achievement) dan pemberitahuan zona
+-- lengkap. Dipakai tangkapan (FishCaught) dan perintah debug /semua.
+function FishdexService.Record(player: Player, species: Types.FishSpecies, weight: number)
 	local data = DataService.GetData(player)
 	if data == nil then
 		return
@@ -68,8 +70,8 @@ local function onCaught(player: Player, item: Types.FishItem, species: Types.Fis
 	end
 	local e = entry :: Types.FishdexEntry
 	e.Count += 1
-	if item.Weight > e.BestWeight then
-		e.BestWeight = item.Weight
+	if weight > e.BestWeight then
+		e.BestWeight = weight
 	end
 	DataService.Replicate(player, "Fishdex")
 	if isNew then
@@ -121,7 +123,7 @@ end
 
 function FishdexService.Start()
 	FishingService.FishCaught:Connect(function(player, item, species)
-		onCaught(player, item, species)
+		FishdexService.Record(player, species, item.Weight)
 	end)
 	Net.OnServerInvoke("ClaimFishdex", function(player: Player, zoneId: unknown): any
 		return claim(player, zoneId)

@@ -67,6 +67,13 @@ Creator Store / `rojo plugin install`).
 `/koin 5000` · `/level 10` · `/cuaca Badai` · `/event JamEmas` (`MusimIkan`, `BulanPurnama`, `None`) ·
 `/waktu 20` · `/isitas DeepSea`.
 
+**`/semua`** — buka semua untuk menguji seluruh fitur: Level 50, +1.000.000 koin, +5.000 poin konservasi, tas 150,
+semua joran, umpan ×999, semua kosmetik & gelar, Fishdex 28/28 (lewat jalur tangkapan → quest/achievement/hadiah zona
+ikut teruji), satu ikan tiap spesies di tas (termasuk yang dilindungi, untuk uji Lepaskan). Lalu: ganti joran di toko
+Pak Darto → **Pakai**, ambil hadiah Fishdex di Prof. Mina, coba kosmetik (C), jual/barter/trade. Di mode uji data
+kembali awal setiap Play; untuk menguji alur beli joran/tas/kosmetik, Play ulang dan pakai `/koin` + `/level` saja.
+Di place dengan DataStore asli perintah ini menolak kecuali `/semua paksa` (perubahan permanen).
+
 ## F. Trade dua pemain (Test → Clients and Servers, 2 pemain)
 1. Test tab → **Clients and Servers** → 2 Players → Start.
 2. Client 1: `/isitas`, dekati Client 2 (≤ 30 stud), tekan **G** → Ajak Tukar (atau tekan **T** di dekat karakter).

@@ -2,6 +2,8 @@
 -- DebugService: perintah chat untuk mempercepat uji. HANYA aktif bila RunService:IsStudio().
 -- /koin <n>  /level <n>  /cuaca <Cerah|Berawan|Hujan|Badai>  /event <JamEmas|MusimIkan|BulanPurnama|None>
 -- /waktu <jam 0-24>  /isitas [zona]  (isi tas dengan ikan acak dari zona, default Shore)
+-- /semua [paksa]  (buka semua untuk uji: level maks, koin, poin, tas terbesar, semua joran/umpan/kosmetik & gelar,
+--                  Fishdex lengkap, satu ikan tiap spesies di tas; di luar mode uji wajib "paksa")
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,15 +14,27 @@ local Shared = ReplicatedStorage.Shared
 local Types = require(Shared.Types)
 local Net = require(Shared.Net)
 local Formulas = require(Shared.Formulas)
+local Format = require(Shared.Util.Format)
 local Balance = require(Shared.Config.Balance)
 local Fish = require(Shared.Config.Fish)
 local Zones = require(Shared.Config.Zones)
+local Rods = require(Shared.Config.Rods)
+local Bait = require(Shared.Config.Bait)
+local Bags = require(Shared.Config.Bags)
+local Cosmetics = require(Shared.Config.Cosmetics)
+local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local InventoryService = require(script.Parent.InventoryService)
 local LevelService = require(script.Parent.LevelService)
+local ConservationService = require(script.Parent.ConservationService)
+local FishdexService = require(script.Parent.FishdexService)
 local WorldService = require(script.Parent.WorldService)
 
 local DebugService = {}
+
+-- Jumlah pemberian /semua (alat uji Studio, bukan angka gameplay).
+local UNLOCK_COINS = 1000000
+local UNLOCK_POINTS = 5000
 
 local rng = Random.new()
 
@@ -113,6 +127,60 @@ local handlers: { [string]: (Player, { string }) -> () } = {
 		end
 		reply(player, "Tas diisi " .. tostring(added) .. " ikan dari " .. zoneId)
 	end,
+	["/semua"] = function(player, args)
+		-- Mode uji: data tidak disimpan. Di place yang memakai DataStore asli, perubahan ini permanen.
+		if not DataService.IsMock() and args[1] ~= "paksa" then
+			reply(player, "Data asli (bukan mode uji) akan berubah permanen. Ketik /semua paksa untuk tetap lanjut.")
+			return
+		end
+		LevelService.SetLevel(player, Balance.MaxLevel)
+		EconomyService.Add(player, UNLOCK_COINS, "debug:semua")
+		ConservationService.AddPoints(player, UNLOCK_POINTS, "debug:semua")
+		InventoryService.SetBagCapacity(player, Bags.Tiers[#Bags.Tiers].Capacity)
+		for _, rod in Rods.List do
+			InventoryService.GiveRod(player, rod.Id)
+		end
+		for _, bait in Bait.List do
+			InventoryService.AddBait(player, bait.Id, Balance.BaitMaxStack)
+		end
+		for _, cosmetic in Cosmetics.List do
+			InventoryService.GiveCosmetic(player, cosmetic.Id)
+		end
+		-- Fishdex lewat jalur tangkapan biasa agar quest, achievement, dan hadiah zona Prof. Mina ikut teruji.
+		local added = 0
+		for _, species in Fish.List do
+			local weight = Formulas.RollWeight(rng, species)
+			FishdexService.Record(player, species, weight)
+			if not InventoryService.IsBagFull(player) then
+				local ok = InventoryService.AddFish(player, {
+					Uid = InventoryService.NewUid(),
+					SpeciesId = species.Id,
+					Weight = weight,
+					Mutation = "None",
+					Zone = species.Zones[1],
+					CaughtAt = os.time(),
+					Locked = false,
+				})
+				if ok then
+					added += 1
+				end
+			end
+		end
+		reply(
+			player,
+			string.format(
+				"Semua terbuka: Level %d, +%s koin, +%s poin, tas %d, semua joran/umpan/kosmetik, Fishdex %d/%d, %d ikan di tas.",
+				Balance.MaxLevel,
+				Format.Coins(UNLOCK_COINS),
+				Format.Int(UNLOCK_POINTS),
+				Bags.Tiers[#Bags.Tiers].Capacity,
+				FishdexService.DiscoveredCount(player),
+				#Fish.List,
+				added
+			)
+		)
+		reply(player, "Ganti joran: toko Pak Darto → Pakai. Hadiah Fishdex: Prof. Mina. Kosmetik & gelar: tombol C.")
+	end,
 }
 
 function DebugService.Init()
@@ -152,7 +220,7 @@ function DebugService.Start()
 			end)
 		end
 	end
-	print("[DebugService] aktif (Studio): /koin /level /cuaca /event /waktu /isitas")
+	print("[DebugService] aktif (Studio): /koin /level /cuaca /event /waktu /isitas /semua")
 end
 
 return DebugService
