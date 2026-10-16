@@ -2,18 +2,21 @@
 
 ## Ringkasan status
 - Tanggal: 2026-10-16. Mode kerja: autopilot ("gas loop"). Semua fase 0–8 sudah ditulis kodenya.
-- Bukti: **Dicek statis** (luau-lsp 1.70.1 strict + definisi Roblox, Lune 0.10.5, Rojo build). **Belum dieksekusi
-  di Studio** — menunggu sakelar *Enable Studio as MCP server* dinyalakan di Studio.
-- Sudah diterapkan: MCP `Roblox_Studio` cakupan user (status "Connected", tool menunggu Studio), plugin Rojo,
-  `rojo serve` (34872), place kerja `place/PantaiMancing.rbxl` dibuka di Studio.
-- Berikutnya: nyalakan sakelar MCP + Plugins → Rojo → Connect, lalu `/bake` → `/review-map` → `/playtest`.
+- Bukti **Dieksekusi di Studio** (Play oleh pemilik, log Studio 17:08): `[Main] server siap: 19 service`,
+  `[SELFTEST] LULUS 178/178`, MapBuilder 4.220 part dalam 6,2 dtk, 0 error dari skrip kita; HUD tampil benar setelah
+  perbaikan panel. Belum: bake mode edit, 6 screenshot, alur playtest lengkap, `/semua` (sempat diketik di F9).
+- Lingkungan: Rojo live tersambung (plugin + `rojo serve` 34872), place kerja `place/PantaiMancing.rbxl`, MCP
+  `Roblox_Studio` cakupan user (sakelar MCP di Studio belum dinyalakan). Repo: github.com/mizarzulmi/mancing-map-roblox
+  (privat, branch `master`).
+- Berikutnya: bake lewat Command Bar (TESTING §C) → edit manual di `Workspace.CustomMap`; `/semua` di chat; nyalakan
+  MCP untuk `/review-map` → `/playtest`.
 - Menunggu persetujuan: usulan balancing (lihat §Balancing).
 
 ## Fase
 | Fase | Isi | Kode | Bukti |
 |---|---|---|---|
-| 0 Fondasi | struktur, AGENTS/CLAUDE/PRODUCT/docs, `.claude/` (skill, perintah, sub-agen, hook), toolchain & skrip, Util, Types, Net, Formulas, ProfileSchema, TradeLogic, Config, bootstrap | ✅ | statis ✅ · Lune 178/178 ✅ · Script Sync: disiapkan (TESTING §B) |
-| 1 Map | Terrain, plaza & kios, dermaga T, gubuk barter, jetty kapal, platform Laut Dalam, mercusuar, pinisi, jukung, kelapa, bakau, properti, bawah laut, zona, titik NPC, batas, Lighting | ✅ | statis ✅ · dijalankan penuh di Lune (4.219 part) ✅ · bake & 6 screenshot Studio: belum (butuh MCP) |
+| 0 Fondasi | struktur, AGENTS/CLAUDE/PRODUCT/docs, `.claude/` (skill, perintah, sub-agen, hook), toolchain & skrip, Util, Types, Net, Formulas, ProfileSchema, TradeLogic, Config, bootstrap | ✅ | statis ✅ · Lune 178/178 ✅ · **SelfTest di Studio 178/178** ✅ · Rojo live ✅ |
+| 1 Map | Terrain, plaza & kios, dermaga T, gubuk barter, jetty kapal, platform Laut Dalam, mercusuar, pinisi, jukung, kelapa, bakau, properti, bawah laut, zona, titik NPC, batas, Lighting | ✅ | statis ✅ · Lune (4.219 part) ✅ · **dibangun saat Play di Studio (4.220 part, 6,2 dtk)** ✅ · bake edit-mode & 6 screenshot: belum |
 | 2 Data & ekonomi | DataService (ProfileStore + mock), Economy, Inventory, leaderstats, DataController, UIController, HUD, toast | ✅ | statis ✅ |
 | 3 Memancing | FishingService, RodModel/BobberModel/FishModel, Input/Fishing/Minigame/CatchPopup | ✅ | statis ✅ |
 | 4 NPC & toko | NPCService, Dialog, Shop (joran/umpan/tas/kosmetik/poin), Sell, Cosmetic + equip | ✅ | statis ✅ |
