@@ -183,42 +183,61 @@ local handlers: { [string]: (Player, { string }) -> () } = {
 	end,
 }
 
-function DebugService.Init()
-	if not RunService:IsStudio() then
+local lastRun: { [string]: number } = {}
+
+local function run(player: Player, alias: string, text: string)
+	local handler = handlers[alias]
+	if handler == nil then
 		return
 	end
-	local folder = Instance.new("Folder")
-	folder.Name = "DebugCommands"
-	for alias in handlers do
-		local cmd = Instance.new("TextChatCommand")
-		cmd.Name = "Debug_" .. string.sub(alias, 2)
-		cmd.PrimaryAlias = alias
-		cmd.Parent = folder
+	-- Penahan dobel: jalur TextChatCommand dan Chatted tidak boleh menjalankan perintah yang sama dua kali.
+	local key = tostring(player.UserId) .. alias
+	local now = os.clock()
+	local last: number? = lastRun[key]
+	if last and now - last < 1 then
+		return
 	end
-	folder.Parent = TextChatService
+	lastRun[key] = now
+	print(string.format("[DebugService] %s oleh %s", alias, player.Name))
+	local ok, err = pcall(handler :: (Player, { string }) -> ...any, player, argsOf(text))
+	if not ok then
+		warn("[DebugService] " .. alias .. " gagal: " .. tostring(err))
+	end
 end
 
 function DebugService.Start()
 	if not RunService:IsStudio() then
 		return
 	end
-	local folder = TextChatService:FindFirstChild("DebugCommands")
-	if folder == nil then
-		return
-	end
-	for _, cmd in folder:GetChildren() do
-		if cmd:IsA("TextChatCommand") then
-			local handler = handlers[cmd.PrimaryAlias]
+	-- Perintah di dalam folder buatan sendiri tidak pernah terpicu (Studio 2026-10-16). Taruh di folder bawaan
+	-- TextChatCommands (tempat /help dkk.); bila tidak ada (CreateDefaultCommands = false), di TextChatService.
+	task.spawn(function()
+		local parent: Instance = TextChatService:WaitForChild("TextChatCommands", 10) or TextChatService
+		for alias in handlers do
+			local cmd = Instance.new("TextChatCommand")
+			cmd.Name = "Debug_" .. string.sub(alias, 2)
+			cmd.PrimaryAlias = alias
 			cmd.Triggered:Connect(function(source: TextSource, text: string)
 				local player = Players:GetPlayerByUserId(source.UserId)
-				if player and handler then
-					local ok, err = pcall(handler :: (Player, { string }) -> ...any, player, argsOf(text))
-					if not ok then
-						warn("[DebugService] " .. cmd.PrimaryAlias .. " gagal: " .. tostring(err))
-					end
+				if player then
+					run(player, alias, text)
 				end
 			end)
+			cmd.Parent = parent
 		end
+	end)
+	-- Cadangan: bila chat tidak mengenali perintah, pesan terkirim sebagai chat biasa dan Chatted menangkapnya.
+	local function watch(player: Player)
+		player.Chatted:Connect(function(message: string)
+			local alias = string.lower(string.match(message, "^%S+") or "")
+			if handlers[alias] then
+				run(player, alias, message)
+			end
+		end)
+	end
+	Players.PlayerAdded:Connect(watch)
+	for _, player in Players:GetPlayers() do
+		watch(player)
 	end
 	print("[DebugService] aktif (Studio): /koin /level /cuaca /event /waktu /isitas /semua")
 end
