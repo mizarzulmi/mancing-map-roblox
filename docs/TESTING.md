@@ -73,7 +73,13 @@ Creator Store / `rojo plugin install`).
 | 12 | Lepas ikan di Tas (B) | Poin Konservasi bertambah sesuai rarity |
 | 13 | Masuk air sambil memancing | Sesi batal: "Kamu masuk air, memancing dibatalkan." |
 
-## E. Perintah debug (hanya Studio, ketik di chat)
+## E. Perintah debug (hanya Studio, lewat chat atau konsol F9)
+- **Chat:** klik sekali dunia 3D (fokus Studio), tekan `/`, ketik perintah.
+- **Konsol F9 → tab Server → kolom perintah di bawah:** `game.ServerStorage.Debug:Invoke("semua")` (perintah sama
+  tanpa/dengan `/`, argumen ikut: `Invoke("koin 5000")`, `Invoke("cuaca Badai")`); nama pemain sebagai argumen kedua
+  bila ada beberapa pemain. Hasil tampil di log Server (`[Debug] ...`). Mengetik `/semua` langsung di F9 = error
+  `Expected identifier` karena kolom itu menjalankan kode Luau.
+
 `/koin 5000` · `/level 10` · `/cuaca Badai` · `/event JamEmas` (`MusimIkan`, `BulanPurnama`, `None`) ·
 `/waktu 20` · `/isitas DeepSea`.
 

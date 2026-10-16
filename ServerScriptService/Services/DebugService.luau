@@ -1,5 +1,6 @@
 --!strict
--- DebugService: perintah chat untuk mempercepat uji. HANYA aktif bila RunService:IsStudio().
+-- DebugService: perintah uji lewat chat atau konsol F9 tab Server (game.ServerStorage.Debug:Invoke("semua")).
+-- HANYA aktif bila RunService:IsStudio().
 -- /koin <n>  /level <n>  /cuaca <Cerah|Berawan|Hujan|Badai>  /event <JamEmas|MusimIkan|BulanPurnama|None>
 -- /waktu <jam 0-24>  /isitas [zona]  (isi tas dengan ikan acak dari zona, default Shore)
 -- /semua [paksa]  (buka semua untuk uji: level maks, koin, poin, tas terbesar, semua joran/umpan/kosmetik & gelar,
@@ -8,6 +9,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local TextChatService = game:GetService("TextChatService")
 
 local Shared = ReplicatedStorage.Shared
@@ -39,6 +41,8 @@ local UNLOCK_POINTS = 5000
 local rng = Random.new()
 
 local function reply(player: Player, text: string)
+	-- Juga ke Output server agar terlihat di konsol F9 (tab Server).
+	print("[Debug] " .. player.Name .. ": " .. text)
 	Net.FireClient("Notify", player, "Info", "[Debug] " .. text)
 end
 
@@ -239,7 +243,31 @@ function DebugService.Start()
 	for _, player in Players:GetPlayers() do
 		watch(player)
 	end
-	print("[DebugService] aktif (Studio): /koin /level /cuaca /event /waktu /isitas /semua")
+	-- Konsol F9 tab Server: game.ServerStorage.Debug:Invoke("semua") — untuk semua pemain, atau nama pemain
+	-- sebagai argumen kedua. Bindable dijalankan oleh skrip ini (data pemain yang hidup), bukan salinan modul
+	-- hasil require dari konsol.
+	local bindable = Instance.new("BindableFunction")
+	bindable.Name = "Debug"
+	bindable.OnInvoke = function(text: unknown, playerName: unknown): string
+		if type(text) ~= "string" or text == "" then
+			return 'Pakai: game.ServerStorage.Debug:Invoke("semua")'
+		end
+		local message = if string.sub(text, 1, 1) == "/" then text else "/" .. text
+		local alias = string.lower(string.match(message, "^%S+") or "")
+		if handlers[alias] == nil then
+			return "Perintah tidak dikenal: " .. alias
+		end
+		local count = 0
+		for _, player in Players:GetPlayers() do
+			if playerName == nil or player.Name == playerName then
+				run(player, alias, message)
+				count += 1
+			end
+		end
+		return string.format("%s dijalankan untuk %d pemain", alias, count)
+	end
+	bindable.Parent = ServerStorage
+	print('[DebugService] aktif (Studio): chat /koin /level /cuaca /event /waktu /isitas /semua · F9 Server: game.ServerStorage.Debug:Invoke("semua")')
 end
 
 return DebugService

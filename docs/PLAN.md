@@ -132,7 +132,8 @@ Semua service: `Init()` (tanpa yield) dan `Start()`.
 - **LeaderboardService** — OrderedDataStore `Heaviest`/`TotalCoins`, refresh 5 menit, SurfaceGui di papan plaza;
   nonaktif + tulisan "Papan peringkat aktif setelah dipublish" di mode mock.
 - **DebugService** — hanya `RunService:IsStudio()`: TextChatCommand `/koin n`, `/level n`, `/cuaca id`, `/event id`,
-  `/waktu jam`, `/isitas`, `/semua [paksa]` (buka semua untuk uji; di luar mode uji wajib `paksa`).
+  `/waktu jam`, `/isitas`, `/semua [paksa]` (buka semua untuk uji; di luar mode uji wajib `paksa`). Juga
+  `ServerStorage.Debug` (BindableFunction, hanya Studio) untuk konsol F9 tab Server.
 
 ## 4. Remote (semua didefinisikan di `Shared/Net.luau`)
 
