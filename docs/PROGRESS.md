@@ -5,8 +5,10 @@
 - Bukti **Dieksekusi di Studio** (Play oleh pemilik, log Studio 17:08): `[Main] server siap: 19 service`,
   `[SELFTEST] LULUS 178/178`, MapBuilder 4.220 part dalam 6,2 dtk, 0 error dari skrip kita; HUD tampil benar setelah
   perbaikan panel; `/semua` ✅ (Level 50, +1.000.000 koin, Fishdex 28/28, 28 ikan di tas, 0 error); chat pindah ke
-  kanan bawah ✅. Belum: bake ulang dengan cek darat (bake 17.21 lewat Command Bar membuat daratan tergenang;
-  penulisan terrain kini diverifikasi + cadangan WriteVoxels), 6 screenshot, alur playtest lengkap.
+  kanan bawah ✅. **"Pantai tenggelam" terdiagnosis:** terrain benar di server & client (cek voxel + raycast), tetapi
+  seluruh model `BeachMap` terseret ±800 stud dari pulau di mode edit (kamera pemain di (−688, 4, 442), sinar kamera
+  hanya mengenai air) → `MapBuilder.Realign` mengembalikannya otomatis saat Play + baris Command Bar (TESTING §C).
+  Belum: 6 screenshot, alur playtest lengkap.
 - Lingkungan: Rojo live tersambung (plugin + `rojo serve` 34872), place kerja `place/PantaiMancing.rbxl`, MCP
   `Roblox_Studio` cakupan user (sakelar MCP di Studio belum dinyalakan). Repo: github.com/mizarzulmi/mancing-map-roblox
   (privat, branch `master`).

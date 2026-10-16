@@ -226,8 +226,8 @@ local function ensureMap()
 			if needsBuild then
 				MapBuilder.EnsureBuilt()
 			else
-				-- Map hasil bake: terrain diperiksa, dibangun ulang bila daratan salah.
-				MapBuilder.EnsureTerrain()
+				-- Map hasil bake: posisi BeachMap dikembalikan bila tergeser; terrain diperiksa & dibangun ulang bila salah.
+				MapBuilder.EnsureBaked()
 			end
 		end)
 		if not ok then

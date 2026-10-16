@@ -135,6 +135,46 @@ function MapBuilder.EnsureBuilt(): boolean
 	return true
 end
 
+-- Kembalikan BeachMap ke posisi rancangan bila tergeser/terputar. Di Studio, klik satu part memilih seluruh model
+-- BeachMap; menyeretnya memindahkan semua bangunan dari pulau terrain (2026-10-16: tergeser ±800 stud, pantai tampak
+-- "tenggelam" karena plaza mengambang di laut lepas). Acuan: penanda Points.FerryArrival_Shore yang posisinya tetap
+-- dari MapConfig. Mengembalikan jarak geser (0 bila sudah tepat). Juga bisa dipanggil dari Command Bar.
+function MapBuilder.Realign(): number
+	local found = Workspace:FindFirstChild("BeachMap")
+	if found == nil or not found:IsA("Model") then
+		return 0
+	end
+	local map = found :: Model
+	local points = map:FindFirstChild("Points")
+	local anchorInst = points and points:FindFirstChild("FerryArrival_Shore")
+	if anchorInst == nil or not anchorInst:IsA("BasePart") then
+		return 0
+	end
+	local anchor = anchorInst :: BasePart
+	local A = MapConfig.Pier.FerryArrivalShore
+	local expected = Geo.Facing(A.Pos, A.Face)
+	local offset = (anchor.Position - expected.Position).Magnitude
+	local turned = anchor.CFrame.LookVector:Dot(expected.LookVector) < 0.999
+	if offset < 0.5 and not turned then
+		return 0
+	end
+	map:PivotTo(expected * anchor.CFrame:Inverse() * map:GetPivot())
+	warn(
+		string.format(
+			"[MapBuilder] BeachMap tergeser %.0f stud%s dari rancangan (terseret di mode edit?); dikembalikan",
+			offset,
+			if turned then " dan terputar" else ""
+		)
+	)
+	return offset
+end
+
+-- Map hasil bake saat server start: kembalikan posisi BeachMap bila tergeser, lalu periksa terrain.
+function MapBuilder.EnsureBaked(): boolean
+	MapBuilder.Realign()
+	return MapBuilder.EnsureTerrain()
+end
+
 -- Map hasil bake: periksa terrain saat server start. Bila daratan salah di sedikitnya separuh titik cek (mis.
 -- tergenang setelah bake dari Command Bar), bangun ulang terrain saja — BeachMap & CustomMap tidak disentuh.
 -- Editan terrain manual pemilik di satu-dua titik tidak memicu ini. Mengembalikan true bila terrain dibangun ulang.

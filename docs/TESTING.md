@@ -54,6 +54,13 @@ Creator Store / `rojo plugin install`).
   Folder → beri nama CustomMap); tidak pernah disentuh kode, bake, maupun Rojo. Mengubah isi `BeachMap`/Terrain boleh
   & tersimpan, tetapi **hilang saat bake ulang** — untuk perubahan permanen pada objek bawaan, minta lewat prompt
   (generator diubah) atau buat versi Anda di CustomMap.
+- **Jangan seret seluruh map.** `BeachMap` satu Model: klik biasa memilih seluruh map, menyeretnya memindahkan semua
+  bangunan dari pulau (pantai tampak "tenggelam"). Pilih satu part dengan **Alt+klik**. Bila terlanjur tergeser:
+  Ctrl+Z, atau Command Bar (mode edit) lalu Ctrl+S:
+  ```lua
+  local w = game.ServerScriptService.World:Clone() local d = require(w.MapBuilder).Realign() w:Destroy() print("[Map] BeachMap digeser balik " .. math.floor(d) .. " stud")
+  ```
+  Saat Play, server juga mengembalikannya otomatis (warn `[MapBuilder] BeachMap tergeser … dikembalikan`).
 - Set `Lighting.Technology = Future` (bake mencoba otomatis; bila gagal, set manual di Properties Lighting).
 
 ## D. Alur main tunggal (Play)
