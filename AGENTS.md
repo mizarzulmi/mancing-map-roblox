@@ -30,6 +30,8 @@ Kontrak modul/remote/data: `docs/PLAN.md`. Status: `docs/PROGRESS.md`. Uji manua
   **`Workspace.CustomMap` milik pemilik proyek — jangan pernah dibaca-tulis/hapus/pindah.**
 - Bake: require dari `:Clone()` folder World (hindari cache require). Modul di `World/` hanya saling require lewat
   `script.Parent`; konfigurasi map di `World/MapConfig.luau`. Perintah: `scripts/bake-command.luau`.
+- Bake ulang menghapus `BeachMap` & menulis ulang Terrain area map → editan manual pemilik di sana hilang. Editan
+  permanen pemilik ada di `Workspace.CustomMap`. Place yang sudah di-bake: **tanya pemilik dulu** sebelum bake ulang.
 
 ## 3. Arsitektur
 - `--!strict` di semua file (kecuali `Packages/`). Tipe bersama diekspor dari `Shared/Types.luau`.

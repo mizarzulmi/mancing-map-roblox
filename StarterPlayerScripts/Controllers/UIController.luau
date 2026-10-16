@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
 local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -263,6 +264,18 @@ function UIController.Init()
 	pcall(function()
 		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
 	end)
+	-- Jendela chat bawaan ada di kiri atas dan tertimpa panel Level + menu kiri (GDD 6). Tanpa layar sentuh,
+	-- pindahkan ke kanan bawah (kosong di PC: tombol Lempar hanya untuk layar sentuh). Layar sentuh: chat tertutup
+	-- secara bawaan, posisi standar dibiarkan.
+	if not UserInputService.TouchEnabled then
+		task.spawn(function()
+			local chatWindow = TextChatService:WaitForChild("ChatWindowConfiguration", 10)
+			if chatWindow and chatWindow:IsA("ChatWindowConfiguration") then
+				chatWindow.HorizontalAlignment = Enum.HorizontalAlignment.Right
+				chatWindow.VerticalAlignment = Enum.VerticalAlignment.Bottom
+			end
+		end)
+	end
 	for _, name in { "HUD", "Minigame", "Panel", "Popup", "Overlay" } do
 		makeGui(name :: GuiName)
 	end

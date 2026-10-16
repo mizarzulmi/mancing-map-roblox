@@ -40,10 +40,20 @@ server start (±beberapa detik; karakter muncul setelah map siap).
 **Rojo (alternatif):** `.tools/bin/rojo.exe serve` lalu sambungkan plugin Rojo di Studio (plugin dipasang dari
 Creator Store / `rojo plugin install`).
 
-## C. Bake map ke Workspace (agar terlihat & bisa dirapikan di edit mode)
-- Studio Command Bar (View → Command Bar): tempel isi `scripts/bake-command.luau` → Enter.
-- Atau lewat MCP: `execute_luau` (datamodel_type `Edit`) dengan isi berkas yang sama.
+## C. Bake map ke Workspace (agar terlihat & bisa diedit manual di edit mode)
+- **Mode edit (bukan Play).** Studio Command Bar = bilah paling bawah "Execute a command…" (bukan chat, bukan
+  Developer Console F9). Tempel satu baris ini → Ctrl+Enter (bake + kamera ke sudut udara):
+  ```lua
+  local w = game.ServerScriptService.World:Clone() local ok, r = pcall(function() return require(w.MapBuilder).Bake() end) w:Destroy() if ok then workspace.CurrentCamera.CFrame = CFrame.lookAt(Vector3.new(-260, 260, 520), Vector3.new(20, 0, 60)) print("[Bake] BeachMap siap: " .. r.Parts .. " part") else warn("[Bake] gagal: " .. tostring(r)) end
+  ```
+  Atau tempel isi `scripts/bake-command.luau`. Lewat MCP: `execute_luau` (datamodel_type `Edit`), berkas yang sama.
+- Lalu **Ctrl+S** (place kerja `place/PantaiMancing.rbxl`). Saat Play, server memakai `BeachMap` yang ada (tidak
+  membangun ulang) → editan manual ikut masuk game.
 - Hasil: `Workspace.BeachMap` + Terrain + Lighting. **Workspace.CustomMap tidak disentuh.**
+- **Edit manual:** objek sendiri → folder `Workspace.CustomMap` (buat: klik kanan Workspace → Insert Object →
+  Folder → beri nama CustomMap); tidak pernah disentuh kode, bake, maupun Rojo. Mengubah isi `BeachMap`/Terrain boleh
+  & tersimpan, tetapi **hilang saat bake ulang** — untuk perubahan permanen pada objek bawaan, minta lewat prompt
+  (generator diubah) atau buat versi Anda di CustomMap.
 - Set `Lighting.Technology = Future` (bake mencoba otomatis; bila gagal, set manual di Properties Lighting).
 
 ## D. Alur main tunggal (Play)
