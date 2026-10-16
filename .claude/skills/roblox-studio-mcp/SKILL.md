@@ -12,8 +12,14 @@ description: >
 
 ## Koneksi
 - Studio: Assistant → ⋯ → Manage MCP Servers → **Enable Studio as MCP server** (Studio harus terbuka).
-- Claude Code: `.mcp.json` mendaftarkan `Roblox_Studio` (`cmd /c %LOCALAPPDATA%\Roblox\mcp.bat`).
-  Setelah mengubah `.mcp.json`, mulai ulang sesi agar tool `mcp__Roblox_Studio__*` muncul.
+- Claude Code: server `Roblox_Studio` terdaftar di **cakupan user** (`claude mcp add --scope user Roblox_Studio --
+  cmd.exe /c "%LOCALAPPDATA%\Roblox\mcp.bat"`). Entri `.mcp.json` proyek berstatus "⏸ Pending approval" bila
+  dialog persetujuan belum pernah muncul — `enabledMcpjsonServers` di `.claude/settings*.json` tidak cukup
+  (terverifikasi Claude Code 2.1.273). Cek: `claude mcp get Roblox_Studio`. Server dimuat saat sesi dimulai:
+  setelah mengubah konfigurasi, buka percakapan baru agar tool `mcp__Roblox_Studio__*` muncul.
+- "Connected · tools fetch failed / Request timed out" = proxy jalan, Studio tertutup atau sakelar MCP mati.
+- Kode masuk Studio lewat Rojo (`.tools\bin\rojo.exe serve default.project.json` + Plugins → Rojo → Connect);
+  bake memakai modul World yang sudah tersinkron.
 - Tanpa tool native: `python scripts/studio_mcp.py status|tools|call|luau` (memanggil proxy yang sama).
 - Setiap call menerima `studio_id` opsional; pakai `list_roblox_studios` bila beberapa jendela terbuka.
 

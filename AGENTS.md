@@ -16,7 +16,8 @@ Kontrak modul/remote/data: `docs/PLAN.md`. Status: `docs/PROGRESS.md`. Uji manua
   (catat perubahan lama→baru di PROGRESS.md).
 
 ## 2. Sumber kebenaran & sinkronisasi
-- Kode = file `.luau` di disk. Disinkronkan ke Studio via Script Sync (default) atau Rojo (`default.project.json`).
+- Kode = file `.luau` di disk. Disinkronkan ke Studio via Rojo live (`rojo serve` + plugin, terpasang di mesin
+  pemilik) atau Script Sync. Place kerja `place/PantaiMancing.rbxl`; `build/` boleh ditimpa kapan saja.
 - Konvensi: `Nama.server.luau` = Script, `Nama.client.luau` = LocalScript, `Nama.luau` = ModuleScript, folder = Folder.
   **Tanpa** `init.luau`. Tidak ada script yang punya child script.
 - Hanya tiga folder layanan: `ServerScriptService/`, `ReplicatedStorage/`, `StarterPlayerScripts/`.

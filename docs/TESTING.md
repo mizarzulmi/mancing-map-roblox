@@ -17,7 +17,17 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1         # build/Panta
 **Cara cepat (tanpa sinkronisasi):** buka `build/PantaiMancing.rbxl` di Studio → Play. Map dibangun otomatis saat
 server start (±beberapa detik; karakter muncul setelah map siap).
 
-**Script Sync (default proyek):**
+**Setup yang dipakai di mesin pemilik (Rojo live + MCP):**
+1. Place kerja: `place/PantaiMancing.rbxl` (salinan build; di-gitignore). Jangan bekerja di `build/` — ditimpa
+   setiap `build.ps1`/`/cek`.
+2. Plugin Rojo terpasang (`.tools\bin\rojo.exe plugin install` → `%LOCALAPPDATA%\Roblox\Plugins\RojoManagedPlugin.rbxm`).
+3. Terminal: `.tools\bin\rojo.exe serve default.project.json` (localhost:34872). Studio: tab **Plugins → Rojo →
+   Connect**, terima patch awal. `Workspace`/`Lighting` tanpa `$path` → `BeachMap`, `CustomMap`, Terrain aman.
+4. MCP: Studio **Assistant → ⋯ → Manage MCP Servers → Enable Studio as MCP server**; Claude Code memakai server
+   `Roblox_Studio` cakupan user. Cek: `claude mcp get Roblox_Studio` (harus "Connected", bukan "Pending approval")
+   dan `python scripts/studio_mcp.py status` (harus mencantumkan studio, bukan "belum menyediakan tool").
+
+**Script Sync (alternatif, beta):**
 1. Studio: File → Beta Features → **Script Sync** → Save → restart Studio.
 2. Buka place Anda (yang sudah dipublish).
 3. Di Explorer, klik kanan **ServerScriptService** → *Sync with folder* (atau menu Script Sync) → pilih

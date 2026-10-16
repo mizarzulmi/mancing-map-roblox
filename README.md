@@ -15,7 +15,10 @@ Dokumen: [AGENTS.md](AGENTS.md) (aturan teknis) · [docs/GDD.md](docs/GDD.md) (d
 3. **Game Settings → Avatar → R15**.
 4. Toolchain lokal (Rojo, luau-lsp, Lune, Selene, StyLua ke `.tools/`, tidak mengubah PATH):
    `powershell -ExecutionPolicy Bypass -File scripts/setup-tools.ps1`
-5. (Opsional, untuk agen AI) Studio: **Assistant → ⋯ → Manage MCP Servers → Enable Studio as MCP server**.
+5. (Untuk agen AI) Studio: **Assistant → ⋯ → Manage MCP Servers → Enable Studio as MCP server** (sekali).
+   Claude Code: `claude mcp add --scope user Roblox_Studio -- cmd.exe /c "%LOCALAPPDATA%\Roblox\mcp.bat"`
+   (tanpa dialog persetujuan; cek dengan `claude mcp get Roblox_Studio`).
+6. Plugin Rojo untuk sinkron live: `.tools\bin\rojo.exe plugin install` (sekali, saat Studio tertutup).
 
 ## 2. Mulai cepat
 ```powershell
@@ -25,9 +28,14 @@ Buka `build/PantaiMancing.rbxl` di Studio → **Play**. Map dibangun otomatis sa
 `Workspace.BeachMap` belum ada (pemain ditahan sampai map siap). Untuk melihat/merapikan map di edit mode,
 jalankan isi [scripts/bake-command.luau](scripts/bake-command.luau) di Command Bar.
 
-Sinkronisasi live ke place Anda: **Script Sync** (File → Beta Features) untuk folder `ServerScriptService`,
-`ReplicatedStorage`, `StarterPlayer/StarterPlayerScripts`, atau **Rojo** (`default.project.json`). Langkah rinci
-di [docs/TESTING.md](docs/TESTING.md#b-menyambungkan-kode-ke-studio).
+**Place kerja:** salin build sekali ke `place/PantaiMancing.rbxl` (di-gitignore) dan bekerja di sana —
+`build/` ditimpa setiap `build.ps1`/`/cek`, jadi hasil bake & `Workspace.CustomMap` Anda bisa hilang bila disimpan
+di `build/`. Setelah dipublish, place cloud menjadi sumber utama.
+
+Sinkronisasi live kode ke place: **Rojo** — jalankan `.tools\bin\rojo.exe serve default.project.json`, lalu di
+Studio tab **Plugins → Rojo → Connect** (localhost:34872). `Workspace` & `Lighting` tidak punya `$path` di
+project, jadi Rojo tidak menyentuh `BeachMap`/`CustomMap`. Alternatif: **Script Sync** (File → Beta Features).
+Langkah rinci di [docs/TESTING.md](docs/TESTING.md#b-menyambungkan-kode-ke-studio).
 
 **Lighting.Technology = Future** tidak bisa diubah script saat runtime. Bake mencoba mengaturnya; bila gagal, pilih
 Lighting di Explorer → Properties → Technology → Future. `build/PantaiMancing.rbxl` sudah memakai Future.
@@ -62,8 +70,10 @@ Setelah mengubah Config jalankan `scripts/test.ps1` — **ConfigSpec** memeriksa
 umpan, NPC, kosmetik) dan **FormulasSpec/EconomySpec/TradeSpec/BarterSpec** menguji rumus.
 
 ## 5. Bekerja dengan Claude Code
-Buka folder ini di VS Code/Claude Code. `CLAUDE.md` memuat AGENTS.md otomatis; `.mcp.json` mendaftarkan server
-MCP **Roblox_Studio** (setujui saat diminta, Studio harus terbuka dengan MCP aktif). Perintah:
+Buka folder ini di VS Code/Claude Code. `CLAUDE.md` memuat AGENTS.md otomatis. Server MCP **Roblox_Studio**
+terdaftar di cakupan user (langkah 1.5) — `.mcp.json` juga memuatnya, tetapi entri proyek butuh dialog persetujuan
+yang tidak selalu muncul di ekstensi VS Code (`claude mcp list` → "Pending approval"). Server MCP dimuat saat sesi
+dimulai: setelah mengubah konfigurasinya, buka percakapan baru. Studio harus terbuka dengan MCP aktif. Perintah:
 
 | Perintah | Fungsi |
 |---|---|
@@ -91,7 +101,9 @@ luau-lsp otomatis setiap kali berkas `.luau` diedit). Tanpa MCP native, pakai `p
 - **Visual**: semua model dari primitif, Terrain, efek bawaan — tanpa mesh/aset karangan. Penggantian dengan mesh
   Creator Store hanya dengan izin pemilik (`/model-cantik`).
 - **Papan peringkat** nonaktif di mode uji (Studio tanpa akses API).
-- Nama menu **Script Sync** di Studio masih beta dan bisa berubah; Rojo tersedia sebagai alternatif.
+- Nama menu **Script Sync** di Studio masih beta dan bisa berubah; Rojo dipakai sebagai sinkron live utama.
+- Sakelar **Enable Studio as MCP server** harus dinyalakan di Studio sendiri: saat masih mati, tidak ada kunci
+  di berkas pengaturan/registry lokal Studio yang bisa diatur dari luar (diperiksa 2026-10-16, Studio 0.743).
 
 ## 7. Lisensi pihak ketiga
 - ProfileStore © MadStudioRoblox (loleris), Apache-2.0 — `docs/licenses/ProfileStore-LICENSE.txt`.

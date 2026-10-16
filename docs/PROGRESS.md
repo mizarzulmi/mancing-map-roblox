@@ -3,8 +3,10 @@
 ## Ringkasan status
 - Tanggal: 2026-10-16. Mode kerja: autopilot ("gas loop"). Semua fase 0–8 sudah ditulis kodenya.
 - Bukti: **Dicek statis** (luau-lsp 1.70.1 strict + definisi Roblox, Lune 0.10.5, Rojo build). **Belum dieksekusi
-  di Studio** — server MCP Studio belum aktif di sesi ini (proxy `mcp.bat` jalan, Studio belum mendaftarkan tool).
-- Berikutnya: aktifkan *Enable Studio as MCP server*, lalu `/sesi-baru` → `/bake` → `/review-map` → `/playtest`.
+  di Studio** — menunggu sakelar *Enable Studio as MCP server* dinyalakan di Studio.
+- Sudah diterapkan: MCP `Roblox_Studio` cakupan user (status "Connected", tool menunggu Studio), plugin Rojo,
+  `rojo serve` (34872), place kerja `place/PantaiMancing.rbxl` dibuka di Studio.
+- Berikutnya: nyalakan sakelar MCP + Plugins → Rojo → Connect, lalu `/bake` → `/review-map` → `/playtest`.
 - Menunggu persetujuan: usulan balancing (lihat §Balancing).
 
 ## Fase
@@ -50,6 +52,12 @@ validasi keamanan dinyatakan bersih.
   gelap-di-terang 6,8–10,5. Bahaya/teal sebagai teks di kartu gagal (4,36/4,37) → varian `DangerText` #FF9A80
   (5,43:1) dan `TealText` #4FD1CE (6,05:1).
 - **Tafsir "joran ke-5" (GDD 4.2):** joran ke-5 yang dibeli = Legenda Nusantara; Emas Bahari dilaporkan terpisah.
+- **Koneksi MCP:** entri `.mcp.json` berstatus "⏸ Pending approval" (dialog persetujuan tidak pernah muncul karena
+  `.mcp.json` dibuat di tengah sesi; `enabledMcpjsonServers` di `.claude/settings*.json` tidak dihitung). Solusi:
+  `claude mcp add --scope user Roblox_Studio ...` — cakupan user menang atas entri proyek yang belum disetujui.
+  Sakelar MCP di Studio tidak punya kunci lokal yang bisa diatur dari luar saat mati → wajib diklik pemilik.
+- **Sinkron kode:** Rojo live (plugin + `rojo serve`) dipakai karena bisa disiapkan otomatis; Script Sync butuh
+  beberapa klik menu beta. Place kerja dipisah dari `build/` agar bake & `CustomMap` tidak tertimpa build.
 - **Quest cerita** diterima di Pak Lurah (tanda "!"), hadiah otomatis saat selesai. Ikan Protected masuk tas,
   tidak bisa dijual/ditukar/dibarter, tombol "Lepaskan" di popup & tas.
 

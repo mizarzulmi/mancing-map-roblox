@@ -13,3 +13,6 @@ __pycache__/
 
 # Pengaturan pribadi Claude Code
 .claude/settings.local.json
+
+# Place kerja Studio (hasil bake + Workspace.CustomMap milik pemilik). Tidak ditimpa build.ps1.
+place/
