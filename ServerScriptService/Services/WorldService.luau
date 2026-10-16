@@ -1,6 +1,6 @@
 --!strict
--- WorldService: memastikan map tersedia (bangun otomatis bila Workspace.BeachMap belum ada, pemain ditahan
--- sampai siap), jam siang–malam (atribut acuan di ReplicatedStorage), cuaca, event acak, dan zona memancing.
+-- WorldService: memastikan map tersedia (bangun otomatis bila Workspace.BeachMap belum ada; map hasil bake:
+-- terrain diperiksa & dibangun ulang bila daratan tergenang; pemain ditahan sampai siap), jam siang–malam (atribut acuan di ReplicatedStorage), cuaca, event acak, dan zona memancing.
 -- Satu loop penjadwal global (1 dtk), bukan loop per objek.
 
 local Players = game:GetService("Players")
@@ -218,22 +218,25 @@ local function loadWaitingCharacters()
 end
 
 local function ensureMap()
-	if needsBuild then
-		local worldFolder = ServerScriptService:FindFirstChild("World")
-		local builderModule = worldFolder and worldFolder:FindFirstChild("MapBuilder")
-		if builderModule and builderModule:IsA("ModuleScript") then
-			local ok, err = pcall(function()
-				local MapBuilder = require(builderModule) :: any
+	local worldFolder = ServerScriptService:FindFirstChild("World")
+	local builderModule = worldFolder and worldFolder:FindFirstChild("MapBuilder")
+	if builderModule and builderModule:IsA("ModuleScript") then
+		local ok, err = pcall(function()
+			local MapBuilder = require(builderModule) :: any
+			if needsBuild then
 				MapBuilder.EnsureBuilt()
-			end)
-			if not ok then
-				warn("[WorldService] gagal membangun map: " .. tostring(err))
+			else
+				-- Map hasil bake: terrain diperiksa, dibangun ulang bila daratan salah.
+				MapBuilder.EnsureTerrain()
 			end
-		else
-			warn("[WorldService] ServerScriptService.World.MapBuilder tidak ditemukan")
+		end)
+		if not ok then
+			warn("[WorldService] gagal menyiapkan map: " .. tostring(err))
 		end
-		loadWaitingCharacters()
+	else
+		warn("[WorldService] ServerScriptService.World.MapBuilder tidak ditemukan")
 	end
+	loadWaitingCharacters()
 	collectZones()
 	mapReady = true
 	WorldService.MapReady:Fire()
@@ -241,10 +244,8 @@ end
 
 function WorldService.Init()
 	needsBuild = workspace:FindFirstChild("BeachMap") == nil
-	if needsBuild then
-		-- Pemain tidak boleh jatuh sebelum map siap.
-		Players.CharacterAutoLoads = false
-	end
+	-- Pemain dimuat setelah map siap: dibangun, atau terrain hasil bake sudah diperiksa/diperbaiki.
+	Players.CharacterAutoLoads = false
 	ReplicatedStorage:SetAttribute("DayRefTime", now())
 	ReplicatedStorage:SetAttribute("DayRefClock", Balance.StartClockTime)
 	ReplicatedStorage:SetAttribute("DayLength", Balance.DayLengthSeconds)

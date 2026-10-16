@@ -480,6 +480,12 @@ local function verify(terrain: Terrain): ({ string }, { string })
 	return problems, report
 end
 
+-- Verifikasi daratan di titik cek (dipakai Build dan MapBuilder.EnsureTerrain untuk map hasil bake).
+-- Mengembalikan (titik bermasalah, ringkasan per titik yang berhasil dibaca).
+function Terrain.Verify(terrain: Terrain): ({ string }, { string })
+	return verify(terrain)
+end
+
 -- Tulis pulau/lereng/laguna per chunk. Mengembalikan (jumlah chunk ditulis, memakai WriteVoxels).
 local function writeIsland(terrain: Terrain, forceLegacy: boolean): (number, boolean)
 	local floor = T.SeaFloor

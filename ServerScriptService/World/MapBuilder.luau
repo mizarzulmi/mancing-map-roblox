@@ -135,6 +135,20 @@ function MapBuilder.EnsureBuilt(): boolean
 	return true
 end
 
+-- Map hasil bake: periksa terrain saat server start. Bila daratan salah di sedikitnya separuh titik cek (mis.
+-- tergenang setelah bake dari Command Bar), bangun ulang terrain saja — BeachMap & CustomMap tidak disentuh.
+-- Editan terrain manual pemilik di satu-dua titik tidak memicu ini. Mengembalikan true bila terrain dibangun ulang.
+function MapBuilder.EnsureTerrain(): boolean
+	local problems, report = Terrain.Verify(Workspace.Terrain)
+	print("[Terrain] cek darat (map hasil bake): " .. table.concat(report, " · "))
+	if #report == 0 or #problems * 2 < #report then
+		return false
+	end
+	warn(string.format("[Terrain] daratan hasil bake salah di %d/%d titik; terrain dibangun ulang", #problems, #report))
+	Terrain.Build(Workspace.Terrain)
+	return true
+end
+
 -- Bake (Command Bar / execute_luau, datamodel Edit): bangun + properti Lighting khusus bake.
 function MapBuilder.Bake(): BuildResult
 	local result = MapBuilder.Build({ Bake = true })

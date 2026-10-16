@@ -25,7 +25,8 @@ Kontrak modul/remote/data: `docs/PLAN.md`. Status: `docs/PROGRESS.md`. Uji manua
 - Edit kode hanya lewat file di disk. MCP Studio untuk membaca tree, `execute_luau` (bake), dan playtest.
   **Jangan** mengedit script lewat `multi_edit`.
 - Map dibangun `ServerScriptService/World/MapBuilder.luau` (deterministik, seed tetap) lalu di-bake ke Workspace.
-  Server start tanpa `Workspace.BeachMap` → bangun otomatis; `Players.CharacterAutoLoads` ditahan sampai map siap.
+  Server start tanpa `Workspace.BeachMap` → bangun otomatis; dengan BeachMap (hasil bake) → terrain diverifikasi
+  (`MapBuilder.EnsureTerrain`) dan dibangun ulang bila daratan salah; `Players.CharacterAutoLoads` ditahan sampai siap.
 - Builder **hanya** menyentuh `Workspace.BeachMap`, `Workspace.Terrain`, dan `Lighting`.
   **`Workspace.CustomMap` milik pemilik proyek — jangan pernah dibaca-tulis/hapus/pindah.**
 - Bake: require dari `:Clone()` folder World (hindari cache require). Modul di `World/` hanya saling require lewat
